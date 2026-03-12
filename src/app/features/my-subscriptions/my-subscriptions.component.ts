@@ -20,18 +20,9 @@ export class MySubscriptionsComponent implements OnInit {
   readonly subscriptions = signal<any[]>([]);
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
-  readonly paidSubscriptions = signal<Set<number>>(new Set());
   readonly claimedSubscriptionIds = signal<Set<number>>(new Set());
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      const stored: number[] = JSON.parse(localStorage.getItem('paidSubscriptions') ?? '[]');
-      this.paidSubscriptions.set(new Set(stored));
-
-      // Read claimed IDs from localStorage immediately (fast path)
-      const storedClaimed: number[] = JSON.parse(localStorage.getItem('claimedSubscriptions') ?? '[]');
-      this.claimedSubscriptionIds.set(new Set(storedClaimed));
-    }
     this.loadData();
   }
 
@@ -43,57 +34,36 @@ export class MySubscriptionsComponent implements OnInit {
       catchError((err) => {
         console.error('Failed to load subscriptions:', err);
         this.errorMessage.set('Failed to load subscriptions. Please try again.');
-        return of([]);
+        return of({ data: [] });
       }),
       switchMap((subRes: any) => {
         const subs = subRes.data ?? subRes;
-        this.subscriptions.set(subs);
-        this.isLoading.set(false);
+        this.subscriptions.set(Array.isArray(subs) ? subs : []);
 
-        // Now load claims (subscriptions are guaranteed to be set)
+        // Now load claims
         return this.claimsService.getClaims().pipe(
           catchError((err) => {
-            console.warn('Could not load claims list (non-critical):', err);
-            return of([]);
+            console.warn('Could not load claims list:', err);
+            return of({ data: [] });
           })
         );
       })
     ).subscribe((claimRes: any) => {
       const claimsList: any[] = claimRes.data ?? claimRes;
-      const subs = this.subscriptions();
       const claimedIds = new Set<number>();
 
       if (Array.isArray(claimsList)) {
         claimsList.forEach((c: any) => {
-          // Try direct subscriptionId first
-          const directSid = c.subscriptionId ?? c.subscription_id;
-          if (directSid) {
-            claimedIds.add(Number(directSid));
-            return;
-          }
-          // Fallback: match claim → subscription by eventName purely since claim.policyName is omitted by backend
-          const matchedSub = subs.find((s: any) => {
-            const subEventName = (s.event?.eventName ?? s.eventName ?? '').toLowerCase();
-            return subEventName === (c.eventName ?? '').toLowerCase();
-          });
-          if (matchedSub) {
-            claimedIds.add(Number(matchedSub.subscriptionId));
+          const sid = c.subscriptionId || c.subscription_id;
+          if (sid) {
+            claimedIds.add(Number(sid));
           }
         });
       }
 
-      if (isPlatformBrowser(this.platformId)) {
-        const existing: number[] = JSON.parse(localStorage.getItem('claimedSubscriptions') ?? '[]');
-        existing.forEach(id => claimedIds.add(id));
-        localStorage.setItem('claimedSubscriptions', JSON.stringify([...claimedIds]));
-      }
-
       this.claimedSubscriptionIds.set(claimedIds);
+      this.isLoading.set(false);
     });
-  }
-
-  isPremiumPaid(subscriptionId: number): boolean {
-    return this.paidSubscriptions().has(subscriptionId);
   }
 
   hasClaim(subscriptionId: any): boolean {
@@ -103,20 +73,28 @@ export class MySubscriptionsComponent implements OnInit {
   payPremium(subscriptionId: number): void {
     const confirmed = confirm('Confirm premium payment?');
     if (!confirmed) return;
-    const updated = new Set(this.paidSubscriptions());
-    updated.add(subscriptionId);
-    this.paidSubscriptions.set(updated);
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('paidSubscriptions', JSON.stringify([...updated]));
-    }
+    
+    this.service.payPremium(subscriptionId).pipe(
+      catchError(err => {
+        console.error('Failed to pay premium:', err);
+        alert('Failed to pay premium. Please try again.');
+        return of(null);
+      })
+    ).subscribe(res => {
+      if (res) {
+        alert('Premium paid successfully!');
+        this.loadData(); 
+      }
+    });
   }
 
   statusClass(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'ACTIVE':   return 'bg-green-100 text-green-700';
+      case 'PAID':     return 'bg-green-100 text-green-700';
       case 'APPROVED': return 'bg-blue-100 text-blue-700';
       case 'REJECTED': return 'bg-red-100 text-red-700';
-      default:         return 'bg-yellow-100 text-yellow-700';
+      case 'PENDING':  return 'bg-yellow-100 text-yellow-700';
+      default:         return 'bg-gray-100 text-gray-700';
     }
   }
 

@@ -46,17 +46,10 @@ export class FileClaimComponent implements OnInit {
       next: (res: any) => {
         const subs = res.data ?? res;
         if (Array.isArray(subs)) {
-          let paidIds = new Set<number>();
-          if (isPlatformBrowser(this.platformId)) {
-            const stored: number[] = JSON.parse(localStorage.getItem('paidSubscriptions') ?? '[]');
-            paidIds = new Set(stored.map(v => Number(v)));
-          }
-
           const validSubs = subs.filter(s => {
             const status = s.status?.toUpperCase();
             if (claimedIds.has(Number(s.subscriptionId))) return false; // Hide if already claimed
             if (status === 'ACTIVE') return true;
-            if (status === 'APPROVED' && paidIds.has(Number(s.subscriptionId))) return true;
             return false;
           });
           this.availableSubscriptions.set(validSubs);

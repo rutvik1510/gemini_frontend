@@ -9,4 +9,8 @@ export class MySubscriptionsService {
   getMySubscriptions(): Observable<unknown> {
     return this.http.get('http://localhost:8080/subscriptions');
   }
+
+  payPremium(subscriptionId: number): Observable<any> {
+    return this.http.post(`http://localhost:8080/subscriptions/${subscriptionId}/pay-premium`, {}, { responseType: 'text' as 'json' });
+  }
 }

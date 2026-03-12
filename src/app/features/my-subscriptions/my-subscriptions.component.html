@@ -120,7 +120,7 @@
               }
 
               <!-- APPROVED — premium not yet paid -->
-              @if (sub.status?.toUpperCase() === 'APPROVED' && !isPremiumPaid(sub.subscriptionId)) {
+              @if (sub.status?.toUpperCase() === 'APPROVED') {
                 <p class="text-xs text-slate-400 italic">Pay premium to activate your policy.</p>
                 <button
                   type="button"
@@ -134,13 +134,13 @@
                 </button>
               }
 
-              <!-- APPROVED — premium paid, or ACTIVE -->
-              @if ((sub.status?.toUpperCase() === 'APPROVED' && isPremiumPaid(sub.subscriptionId)) || sub.status?.toUpperCase() === 'ACTIVE') {
+              <!-- PAID — premium paid -->
+              @if (sub.status?.toUpperCase() === 'PAID') {
                 <span class="inline-flex items-center gap-1.5 text-[#16a34a] font-semibold text-sm">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                   </svg>
-                  Policy Active ✓
+                  Policy Paid & Active ✓
                 </span>
 
                 @if (!hasClaim(sub.subscriptionId)) {

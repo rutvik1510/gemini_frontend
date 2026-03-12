@@ -54,6 +54,11 @@
 
     <!-- Events table -->
     @if (!isLoading() && !errorMessage() && events().length > 0) {
+      @if (snackbar()) {
+        <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-indigo-600 text-white px-4 py-2 rounded shadow-lg text-sm font-medium">
+          {{ snackbar() }}
+        </div>
+      }
       <div class="bg-white rounded-2xl shadow overflow-hidden">
         <table class="w-full text-sm text-left">
           <thead class="bg-[#F3F4F6] border-b border-[#8C1D40]/10">
@@ -78,14 +83,38 @@
                     {{ event.eventType === 'OUTDOOR_MUSIC_CONCERT' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-[#6E1733]' }}">
                     {{ event.eventType }}
                   </span>
-                  @if (hasClaim(event.eventId)) {
-                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      Claim Filed
-                    </span>
-                  }
+                  <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold border border-slate-200"
+                        [ngClass]="{
+                          'bg-yellow-100 text-yellow-800': !event.isPremiumPaid,
+                          'bg-green-100 text-green-800': event.isPremiumPaid
+                        }">
+                    @if (!event.isPremiumPaid) {
+                      Premium Pending
+                    } @else {
+                      Premium Paid
+                    }
+                  </span>
+                  <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold border border-slate-200"
+                        [ngClass]="{
+                          'bg-slate-100 text-slate-700': !event.hasClaim,
+                          'bg-yellow-100 text-yellow-800': event.hasClaim && event.claimStatus === 'PENDING',
+                          'bg-green-100 text-green-800': event.hasClaim && event.claimStatus === 'APPROVED',
+                          'bg-red-100 text-red-800': event.hasClaim && event.claimStatus === 'REJECTED'
+                        }">
+                    @if (!event.hasClaim) {
+                      Not Claimed
+                    } @else {
+                      @if (event.claimStatus === 'PENDING') {
+                        Claim Pending
+                      } @else if (event.claimStatus === 'APPROVED') {
+                        Claim Approved
+                      } @else if (event.claimStatus === 'REJECTED') {
+                        Claim Rejected
+                      } @else {
+                        {{ event.claimStatus }}
+                      }
+                    }
+                  </span>
                 </td>
                 <td class="px-6 py-4">
                   <button
@@ -94,6 +123,22 @@
                   >
                     View Details
                   </button>
+                  @if (event.status === 'APPROVED' && !event.isPremiumPaid) {
+                    <button
+                      (click)="payPremium(event.eventId)"
+                      class="ml-2 px-3 py-1.5 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-medium transition-colors"
+                    >
+                      Pay Premium
+                    </button>
+                  }
+                  @if (event.status === 'APPROVED' && event.isPremiumPaid && !event.hasClaim) {
+                    <button
+                      (click)="fileClaim(event.eventId)"
+                      class="ml-2 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition-colors"
+                    >
+                      File Claim
+                    </button>
+                  }
                 </td>
               </tr>
             }

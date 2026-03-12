@@ -118,6 +118,24 @@
               <p class="text-xs text-slate-400 mb-0.5">Customer</p>
               <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.user?.email ?? '—' }}</p>
             </div>
+             <div class="col-span-2">
+               <p class="text-xs text-slate-400 mb-0.5">Claim Status</p>
+               <p class="text-sm font-medium text-[#1F2937]">
+                 @if (!sub().hasClaim) {
+                   Not Claimed
+                 } @else {
+                   @if (sub().claimStatus === 'PENDING') {
+                     Claim Pending
+                   } @else if (sub().claimStatus === 'APPROVED') {
+                     Claim Approved
+                   } @else if (sub().claimStatus === 'REJECTED') {
+                     Claim Rejected
+                   } @else {
+                     {{ sub().claimStatus }}
+                   }
+                 }
+               </p>
+             </div>
           </div>
         </div>
 

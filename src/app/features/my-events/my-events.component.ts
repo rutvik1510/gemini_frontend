@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { EventService } from '../events/event.service';
 import { CustomerClaimsService } from '../customer-claims/customer-claims.service';
 import { forkJoin, of, catchError } from 'rxjs';
+import { MyEventsService } from './my-events.service';
 
 @Component({
   selector: 'app-my-events',
@@ -16,6 +17,8 @@ export class MyEventsComponent {
   private readonly claimsService = inject(CustomerClaimsService);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly myEventsService = inject(MyEventsService);
+  readonly snackbar = signal<string | null>(null);
 
   readonly events = signal<any[]>([]);
   readonly isLoading = signal(true);
@@ -84,4 +87,54 @@ export class MyEventsComponent {
   hasClaim(eventId: any): boolean {
     return this.claimedEventIds().has(Number(eventId));
   }
+
+    payPremium(eventId: number): void {
+      this.myEventsService.payPremium(eventId).subscribe({
+        next: () => {
+          this.snackbar.set('Premium payment successful.');
+          this.refreshEvents();
+        },
+        error: (err: any) => {
+          this.snackbar.set(err?.error?.message ?? 'Failed to pay premium.');
+        }
+      });
+    }
+
+    fileClaim(eventId: number): void {
+      // For demo, use dummy claim data. In real app, show a form/modal.
+      const claimData = {
+        subscriptionId: eventId,
+        description: 'Claim description',
+        claimAmount: 1000,
+        incidentDate: new Date().toISOString().split('T')[0]
+      };
+      this.myEventsService.fileClaim(claimData).subscribe({
+        next: () => {
+          this.snackbar.set('Claim filed successfully.');
+          this.refreshEvents();
+        },
+        error: (err: any) => {
+          if (err?.error?.message === 'Premium not paid.') {
+            this.snackbar.set('Please pay the premium before filing a claim.');
+          } else {
+            this.snackbar.set(err?.error?.message ?? 'Failed to file claim.');
+          }
+        }
+      });
+    }
+
+    refreshEvents(): void {
+      // Reload events list
+      this.isLoading.set(true);
+      this.eventService.getMyEvents().subscribe({
+        next: (res: any) => {
+          this.events.set(res.data ?? res ?? []);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('Failed to refresh events.');
+          this.isLoading.set(false);
+        }
+      });
+    }
 }
