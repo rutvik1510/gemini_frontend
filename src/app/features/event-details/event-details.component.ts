@@ -1,4 +1,4 @@
-import { Component, inject, afterNextRender, signal } from '@angular/core';
+import { Component, inject, afterNextRender, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { EventDetailsService } from './event-details.service';
@@ -16,6 +16,13 @@ export class EventDetailsComponent {
 
   readonly event = signal<any>(null);
   readonly policies = signal<any[]>([]);
+  
+  // New Computed Signal for Smart Filtering
+  readonly availablePolicies = computed(() => {
+    const budget = this.event()?.budget ?? 0;
+    return this.policies().filter(p => (p.maxCoverageAmount ?? 0) >= budget);
+  });
+
   readonly isLoadingEvent = signal(true);
   readonly isLoadingPolicies = signal(true);
   readonly subscribingPolicyId = signal<number | null>(null);

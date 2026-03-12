@@ -14,8 +14,8 @@
         <span class="font-extrabold text-xl" style="color: #E5E7EB">EventGuard</span>
       </div>
       <div class="flex items-center gap-4">
-        <span class="text-base" style="color: #E5E7EB; opacity: 0.6">{{ customerEmail() }}</span>
-        <button (click)="logout()" class="text-base font-semibold transition-colors" style="color: #E5E7EB; opacity: 0.9">
+        <span class="text-base text-white/60 font-medium">{{ customerEmail() }}</span>
+        <button (click)="logout()" class="text-base font-bold text-white/90 hover:text-red-400 transition-colors">
           Logout
         </button>
       </div>
@@ -28,130 +28,95 @@
     <!-- Welcome card -->
     <div class="rounded-3xl p-8 mb-8 shadow-lg"
       style="background: linear-gradient(135deg, #8C1D40, #374151); box-shadow: 0 12px 40px rgba(140,29,64,0.3)">
-      <h1 class="text-3xl font-extrabold text-white mb-2">Customer Dashboard</h1>
-      <p class="text-lg" style="color: #E5E7EB; opacity: 0.75">Welcome back, {{ customerEmail() }}. Manage your events
-        and claims below.</p>
+      <h1 class="text-3xl font-black text-white mb-2 tracking-tight">Customer Dashboard</h1>
+      <p class="text-lg text-white/80 font-medium">Welcome back. Manage your events, policies, and claims in one place.</p>
     </div>
 
     <!-- Action cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <!-- Create Event -->
-      <div
-        class="bg-white rounded-2xl shadow p-6 flex flex-col items-start gap-4 border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-        style="border-color: rgba(140,29,64,0.12)">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-          style="background: linear-gradient(135deg, #F3F4F6, #E5E7EB)">
-          <svg class="w-6 h-6" style="color: #8C1D40" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-start gap-4 border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100">
+          <svg class="w-6 h-6 text-[#8C1D40]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
           </svg>
         </div>
         <div>
-          <h2 class="text-lg font-bold" style="color: #1F2937">Create Event</h2>
-          <p class="text-base mt-0.5" style="color: #374151; opacity: 0.7">Submit a new event for insurance coverage.
-          </p>
+          <h2 class="text-lg font-black text-[#1F2937]">Create Event</h2>
+          <p class="text-sm text-slate-500 font-medium mt-0.5">Submit details for a new event.</p>
         </div>
         <a routerLink="/create-event"
-          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-base font-semibold transition-all duration-200 hover:scale-105"
-          style="background: linear-gradient(135deg, #8C1D40, #6E1733)">
-          Create Event
+          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-200 bg-[#1F2937] hover:bg-[#8C1D40]">
+          Start Application
         </a>
       </div>
 
       <!-- My Events -->
-      <div
-        class="bg-white rounded-2xl shadow p-6 flex flex-col items-start gap-4 border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-        style="border-color: rgba(140,29,64,0.12)">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-          style="background: linear-gradient(135deg, #F3F4F6, #E5E7EB)">
-          <svg class="w-6 h-6" style="color: #8C1D40" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-start gap-4 border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100">
+          <svg class="w-6 h-6 text-[#8C1D40]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
         <div>
-          <h2 class="text-lg font-bold" style="color: #1F2937">My Events</h2>
-          <p class="text-base mt-0.5" style="color: #374151; opacity: 0.7">View all events you have submitted for
-            coverage.</p>
+          <h2 class="text-lg font-black text-[#1F2937]">My Events</h2>
+          <p class="text-sm text-slate-500 font-medium mt-0.5">View and manage your registered events.</p>
         </div>
         <a routerLink="/my-events"
-          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-base font-semibold transition-all duration-200 hover:scale-105"
-          style="background: linear-gradient(135deg, #8C1D40, #6E1733)">
-          My Events
+          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-200 bg-[#1F2937] hover:bg-[#8C1D40]">
+          Track Events
+        </a>
+      </div>
+
+      <!-- My Policies -->
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-start gap-4 border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100">
+          <svg class="w-6 h-6 text-[#8C1D40]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-black text-[#1F2937]">My Policies</h2>
+          <p class="text-sm text-slate-500 font-medium mt-0.5">Coverage details and premium payments.</p>
+        </div>
+        <a routerLink="/my-subscriptions"
+          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-200 bg-[#1F2937] hover:bg-[#8C1D40]">
+          Manage Coverage
         </a>
       </div>
 
       <!-- File Claim -->
-      <div
-        class="bg-white rounded-2xl shadow p-6 flex flex-col items-start gap-4 border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-        style="border-color: rgba(140,29,64,0.12)">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-          style="background: linear-gradient(135deg, #F3F4F6, #E5E7EB)">
-          <svg class="w-6 h-6" style="color: #8C1D40" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-start gap-4 border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-red-50 border border-red-100 text-red-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
         <div>
-          <h2 class="text-lg font-bold" style="color: #1F2937">File Claim</h2>
-          <p class="text-base mt-0.5" style="color: #374151; opacity: 0.7">Submit a new insurance claim for your event.
-          </p>
+          <h2 class="text-lg font-black text-[#1F2937]">File Claim</h2>
+          <p class="text-sm text-slate-500 font-medium mt-0.5">Submit an incident report for a paid policy.</p>
         </div>
         <a routerLink="/file-claim"
-          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-base font-semibold transition-all duration-200 hover:scale-105"
-          style="background: linear-gradient(135deg, #8C1D40, #6E1733)">
-          File Claim
-        </a>
-      </div>
-
-      <!-- My Subscriptions -->
-      <div
-        class="bg-white rounded-2xl shadow p-6 flex flex-col items-start gap-4 border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-        style="border-color: rgba(140,29,64,0.12)">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-          style="background: linear-gradient(135deg, #F3F4F6, #E5E7EB)">
-          <svg class="w-6 h-6" style="color: #8C1D40" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-          </svg>
-        </div>
-        <div>
-          <h2 class="text-lg font-bold" style="color: #1F2937">My Subscriptions</h2>
-          <p class="text-base mt-0.5" style="color: #374151; opacity: 0.7">View all your active policy subscriptions.
-          </p>
-        </div>
-        <a routerLink="/my-subscriptions"
-          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-base font-semibold transition-all duration-200 hover:scale-105"
-          style="background: linear-gradient(135deg, #8C1D40, #6E1733)">
-          My Subscriptions
+          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-200 bg-[#1F2937] hover:bg-red-600">
+          Submit Claim
         </a>
       </div>
 
       <!-- My Claims -->
-      <div
-        class="bg-white rounded-2xl shadow p-6 flex flex-col items-start gap-4 border hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-        style="border-color: rgba(140,29,64,0.12)">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-          style="background: linear-gradient(135deg, #F3F4F6, #E5E7EB)">
-          <svg class="w-6 h-6" style="color: #8C1D40" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-start gap-4 border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100">
+          <svg class="w-6 h-6 text-[#8C1D40]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
         <div>
-          <h2 class="text-lg font-bold" style="color: #1F2937">My Claims</h2>
-          <p class="text-base mt-0.5" style="color: #374151; opacity: 0.7">Track the status of your submitted claims.
-          </p>
+          <h2 class="text-lg font-black text-[#1F2937]">Claim Status</h2>
+          <p class="text-sm text-slate-500 font-medium mt-0.5">Track and view history of your claims.</p>
         </div>
-        <a routerLink="/my-claims"
-          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-base font-semibold transition-all duration-200 hover:scale-105"
-          style="background: linear-gradient(135deg, #8C1D40, #6E1733)">
-          My Claims
+        <a routerLink="/customer-claims"
+          class="mt-auto inline-block px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-200 bg-[#1F2937] hover:bg-[#8C1D40]">
+          View History
         </a>
       </div>
 

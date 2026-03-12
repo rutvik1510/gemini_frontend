@@ -119,22 +119,26 @@
                 <td class="px-6 py-4">
                   <button
                     (click)="viewDetails(event.eventId)"
-                    class="px-3 py-1.5 rounded-lg bg-[#8C1D40] hover:bg-[#8C1D40] text-white text-xs font-medium transition-colors"
+                    class="px-3 py-1.5 rounded-lg bg-[#1F2937] hover:bg-[#374151] text-white text-xs font-bold transition-colors shadow-sm"
                   >
                     View Details
                   </button>
+                  
+                  <!-- Pay Premium Button -->
                   @if (event.status === 'APPROVED' && !event.isPremiumPaid) {
                     <button
-                      (click)="payPremium(event.eventId)"
-                      class="ml-2 px-3 py-1.5 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-medium transition-colors"
+                      (click)="payPremium(event.subscriptionId)"
+                      class="ml-2 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md"
                     >
                       Pay Premium
                     </button>
                   }
-                  @if (event.status === 'APPROVED' && event.isPremiumPaid && !event.hasClaim) {
+
+                  <!-- File Claim Button -->
+                  @if (event.isPremiumPaid && !event.hasClaim) {
                     <button
-                      (click)="fileClaim(event.eventId)"
-                      class="ml-2 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition-colors"
+                      (click)="fileClaim(event.subscriptionId)"
+                      class="ml-2 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-bold transition-all shadow-md"
                     >
                       File Claim
                     </button>

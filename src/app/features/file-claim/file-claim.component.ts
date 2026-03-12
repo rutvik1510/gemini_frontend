@@ -2,7 +2,6 @@ import { Component, inject, OnInit, signal, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
 import { FileClaimService } from './file-claim.service';
 import { MySubscriptionsService } from '../my-subscriptions/my-subscriptions.service';
 
@@ -18,7 +17,6 @@ export class FileClaimComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly subService = inject(MySubscriptionsService);
-  private readonly platformId = inject(PLATFORM_ID);
 
   readonly paramId = this.route.snapshot.paramMap.get('subscriptionId');
   readonly availableSubscriptions = signal<any[]>([]);
@@ -31,26 +29,19 @@ export class FileClaimComponent implements OnInit {
     claimAmount: ['', [Validators.required, Validators.min(1)]],
   });
 
-  isSubmitting = false;
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
+  readonly isSubmitting = signal(false);
+  readonly successMessage = signal<string | null>(null);
+  readonly errorMessage = signal<string | null>(null);
 
   ngOnInit(): void {
-    let claimedIds = new Set<number>();
-    if (isPlatformBrowser(this.platformId)) {
-      const storedClaimed: number[] = JSON.parse(localStorage.getItem('claimedSubscriptions') ?? '[]');
-      claimedIds = new Set(storedClaimed.map(v => Number(v)));
-    }
-
+    // 100% Backend Driven: Fetch latest subscription states
     this.subService.getMySubscriptions().subscribe({
       next: (res: any) => {
         const subs = res.data ?? res;
         if (Array.isArray(subs)) {
           const validSubs = subs.filter(s => {
-            const status = s.status?.toUpperCase();
-            if (claimedIds.has(Number(s.subscriptionId))) return false; // Hide if already claimed
-            if (status === 'ACTIVE') return true;
-            return false;
+            // Rule: Must be PAID and have NO existing claim according to the DB
+            return s.status?.toUpperCase() === 'PAID' && !s.hasClaim;
           });
           this.availableSubscriptions.set(validSubs);
           
@@ -59,7 +50,7 @@ export class FileClaimComponent implements OnInit {
           }
         }
       },
-      error: (err) => console.error('Failed to load subscriptions', err)
+      error: (err) => console.error('Failed to load subscriptions from backend', err)
     });
 
     this.form.controls.subscriptionId.valueChanges.subscribe(() => {
@@ -99,12 +90,13 @@ export class FileClaimComponent implements OnInit {
       return;
     }
 
-    this.isSubmitting = true;
-    this.successMessage = null;
-    this.errorMessage = null;
+    this.isSubmitting.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
 
     const { description, claimAmount, incidentDate, subscriptionId } = this.form.getRawValue();
 
+    // Send to backend for final validation and storage
     this.service.fileClaim({
       subscriptionId: Number(subscriptionId),
       incidentDate,
@@ -112,36 +104,15 @@ export class FileClaimComponent implements OnInit {
       claimAmount: Number(claimAmount),
     }).subscribe({
       next: () => {
-        if (isPlatformBrowser(this.platformId)) {
-          // Update claimedSubscriptions
-          const subIdNum = Number(subscriptionId);
-          const claimedStr = localStorage.getItem('claimedSubscriptions');
-          const claimedList: number[] = claimedStr ? JSON.parse(claimedStr) : [];
-          if (!claimedList.includes(subIdNum)) {
-            claimedList.push(subIdNum);
-            localStorage.setItem('claimedSubscriptions', JSON.stringify(claimedList));
-          }
-
-          // Update claimedEvents if we can find the event ID
-          const selectedSub = this.availableSubscriptions().find(s => s.subscriptionId === subIdNum);
-          if (selectedSub && (selectedSub.event?.eventId || selectedSub.eventId)) {
-            const eventId = Number(selectedSub.event?.eventId || selectedSub.eventId);
-            const claimedEventsStr = localStorage.getItem('claimedEvents');
-            const claimedEventsList: number[] = claimedEventsStr ? JSON.parse(claimedEventsStr) : [];
-            if (!claimedEventsList.includes(eventId)) {
-              claimedEventsList.push(eventId);
-              localStorage.setItem('claimedEvents', JSON.stringify(claimedEventsList));
-            }
-          }
-        }
-        
-        this.successMessage = 'Claim filed successfully!';
-        this.isSubmitting = false;
+        this.successMessage.set('Claim filed successfully! Redirecting...');
+        this.isSubmitting.set(false);
+        // Refresh purely from backend after a small delay
         setTimeout(() => this.router.navigate(['/my-subscriptions']), 1500);
       },
       error: (err) => {
-        this.errorMessage = err?.error?.message ?? 'Failed to file claim. Please try again.';
-        this.isSubmitting = false;
+        // Backend returned a validation error (e.g., policy not paid, duplicate claim)
+        this.errorMessage.set(err?.error?.message ?? 'Failed to file claim. Please try again.');
+        this.isSubmitting.set(false);
       },
     });
   }

@@ -2,11 +2,10 @@ import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SubscriptionDetailsService } from './subscription-details.service';
-import { UnderwriterDashboardService } from '../underwriter-dashboard.service';
 
 interface RiskFactor {
   factor: string;
-  contribution: number;
+  contribution: number | string;
 }
 
 @Component({
@@ -17,7 +16,6 @@ interface RiskFactor {
 })
 export class SubscriptionDetailsComponent {
   private readonly service = inject(SubscriptionDetailsService);
-  private readonly underwriterService = inject(UnderwriterDashboardService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -32,8 +30,11 @@ export class SubscriptionDetailsComponent {
 
   constructor() {
     afterNextRender(() => {
-      this.subscriptionId = Number(this.route.snapshot.paramMap.get('id'));
-      this.load();
+      const idStr = this.route.snapshot.paramMap.get('id');
+      if (idStr) {
+        this.subscriptionId = Number(idStr);
+        this.load();
+      }
     });
   }
 
@@ -46,79 +47,77 @@ export class SubscriptionDetailsComponent {
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Failed to load subscription details. Please try again.');
+        this.errorMessage.set('Failed to load subscription details.');
         this.isLoading.set(false);
       },
     });
   }
 
   getRiskBreakdown(): RiskFactor[] {
-    const e = this.sub()?.event;
-    if (!e) return [];
+    const s = this.sub();
+    if (!s) return [];
+    
     const items: RiskFactor[] = [];
-    if ((e.numberOfAttendees ?? 0) > 1000)           items.push({ factor: 'Attendees > 1,000',       contribution: 2.0 });
-    if (e.isOutdoor)                                  items.push({ factor: 'Outdoor Event',            contribution: 1.0 });
-    if (e.alcoholAllowed)                             items.push({ factor: 'Alcohol Allowed',          contribution: 1.0 });
-    if (e.temporaryStructure)                         items.push({ factor: 'Temporary Structure',      contribution: 0.5 });
-    if (e.fireworksUsed)                              items.push({ factor: 'Fireworks Used',           contribution: 1.5 });
-    if (e.celebrityInvolved)                          items.push({ factor: 'Celebrity Involved',       contribution: 2.0 });
-    if (e.locationRiskLevel?.toUpperCase() === 'HIGH') items.push({ factor: 'High Location Risk',     contribution: 1.5 });
-    if (e.securityLevel?.toUpperCase() === 'LOW')     items.push({ factor: 'Low Security Level',       contribution: 1.0 });
+    
+    // Core Logic Factors
+    if ((s.numberOfAttendees ?? 0) > 1000) items.push({ factor: 'High Crowd Size (>1000)', contribution: '+2.0' });
+    if (s.eventType === 'OUTDOOR_MUSIC_CONCERT') {
+        if (s.fireworksUsed) items.push({ factor: 'Fireworks Display', contribution: '+1.5' });
+        if (s.celebrityInvolved) items.push({ factor: 'Celebrity/VIP Presence', contribution: '+2.0' });
+    }
+
+    // Safety & Security (Our new objective fields)
+    if (!s.hasFireNOC) items.push({ factor: 'No Fire NOC (Critical Risk)', contribution: '+3.0' });
+    if (!s.hasProfessionalSecurity) items.push({ factor: 'No Professional Security', contribution: '+1.0' });
+    if (s.hasMetalDetectors) items.push({ factor: 'Metal Detectors Present', contribution: '-0.5' });
+    if (s.hasCCTV) items.push({ factor: 'CCTV Coverage', contribution: '-0.5' });
+
+    // Weather
+    if (s.weatherRisk > 0) items.push({ factor: `Weather (${s.weatherCondition})`, contribution: `+${s.weatherRisk}` });
+
     return items;
-  }
-
-  getRiskLevel(pct: number): string {
-    if (pct <= 5)  return 'LOW';
-    if (pct <= 10) return 'MEDIUM';
-    return 'HIGH';
-  }
-
-  riskLevelClass(pct: number): string {
-    const level = this.getRiskLevel(pct);
-    if (level === 'LOW')    return 'bg-green-100 text-green-700';
-    if (level === 'MEDIUM') return 'bg-yellow-100 text-yellow-700';
-    return 'bg-red-100 text-red-700';
   }
 
   statusClass(status: string): string {
     switch (status?.toUpperCase()) {
       case 'APPROVED': return 'bg-green-100 text-green-700';
       case 'REJECTED': return 'bg-red-100 text-red-700';
+      case 'PAID':     return 'bg-emerald-100 text-emerald-700';
       default:         return 'bg-yellow-100 text-yellow-700';
     }
   }
 
   approve(): void {
+    if (!confirm('Confirm policy approval?')) return;
     this.processingAction.set('approve');
-    this.actionError.set(null);
-    this.successMessage.set(null);
-    this.underwriterService.approveSubscription(this.subscriptionId).subscribe({
+    this.service.approveSubscription(this.subscriptionId).subscribe({
       next: () => {
-        this.processingAction.set(null);
         this.successMessage.set('Subscription approved successfully.');
         this.load();
-      },
-      error: (err: any) => {
-        this.actionError.set(err?.error?.message ?? 'Failed to approve subscription.');
         this.processingAction.set(null);
       },
+      error: (err) => {
+        this.actionError.set(err?.error?.message ?? 'Approval failed.');
+        this.processingAction.set(null);
+      }
     });
   }
 
   reject(): void {
+    const reason = prompt('Please enter a reason for rejection:');
+    if (reason === null) return; // User cancelled prompt
+
     this.processingAction.set('reject');
-    this.actionError.set(null);
-    this.successMessage.set(null);
-    this.underwriterService.rejectSubscription(this.subscriptionId).subscribe({
+    this.service.rejectSubscription(this.subscriptionId, reason).subscribe({
       next: () => {
-        this.processingAction.set(null);
         this.successMessage.set('Subscription rejected.');
         this.load();
-      },
-      error: (err: any) => {
-        this.actionError.set(err?.error?.message ?? 'Failed to reject subscription.');
         this.processingAction.set(null);
       },
+      error: (err) => {
+        this.actionError.set(err?.error?.message ?? 'Rejection failed.');
+        this.processingAction.set(null);
+      }
     });
   }
 

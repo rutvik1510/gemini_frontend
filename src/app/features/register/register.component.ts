@@ -16,30 +16,21 @@ export class RegisterComponent {
   private readonly router = inject(Router);
 
   readonly form = this.fb.nonNullable.group({
-    name: ['', Validators.required],
+    name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+    companyName: ['', [Validators.required, Validators.minLength(2)]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   readonly errorMessage = signal<string | null>(null);
   readonly isLoading = signal(false);
 
-  get nameControl() {
-    return this.form.controls.name;
-  }
-
-  get emailControl() {
-    return this.form.controls.email;
-  }
-
-  get phoneControl() {
-    return this.form.controls.phone;
-  }
-
-  get passwordControl() {
-    return this.form.controls.password;
-  }
+  get nameControl() { return this.form.controls.name; }
+  get emailControl() { return this.form.controls.email; }
+  get phoneControl() { return this.form.controls.phone; }
+  get companyNameControl() { return this.form.controls.companyName; }
+  get passwordControl() { return this.form.controls.password; }
 
   onSubmit(): void {
     if (this.form.invalid) {

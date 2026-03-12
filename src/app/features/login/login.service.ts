@@ -5,6 +5,9 @@ import { Observable } from 'rxjs';
 export interface LoginResponse {
   data: {
     token: string;
+    name: string;
+    email: string;
+    role: string;
   };
   message: string;
   status: string;

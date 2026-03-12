@@ -12,8 +12,6 @@ const ROLE_ROUTES: Record<string, string> = {
   CLAIMS_OFFICER: '/claims-dashboard',
 };
 
-
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -28,19 +26,14 @@ export class LoginComponent {
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
+    password: ['', [Validators.required, Validators.minLength(1)]],
   });
 
   readonly errorMessage = signal<string | null>(null);
   readonly isLoading = signal(false);
 
-  get emailControl() {
-    return this.form.controls.email;
-  }
-
-  get passwordControl() {
-    return this.form.controls.password;
-  }
+  get emailControl() { return this.form.controls.email; }
+  get passwordControl() { return this.form.controls.password; }
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -55,15 +48,11 @@ export class LoginComponent {
 
     this.loginService.login(email, password).subscribe({
       next: (response) => {
-        const token = response.data.token;
-        this.authService.login(token);
+        const { token, name, email: userEmail } = response.data;
+        this.authService.login(token, name, userEmail);
         
         const roles = this.authService.getRoles();
-        const role = roles[0]; // Primary role for routing
-
-        console.log('✅ Login successful');
-        console.log('👤 Primary role:', role);
-        console.log('🛡️ Authorization header will be: Bearer', token);
+        const role = roles[0];
 
         this.isLoading.set(false);
         const route = (role && ROLE_ROUTES[role]) ?? '/customer-dashboard';

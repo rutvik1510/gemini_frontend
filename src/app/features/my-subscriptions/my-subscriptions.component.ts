@@ -19,6 +19,7 @@ export class MySubscriptionsComponent implements OnInit {
 
   readonly subscriptions = signal<any[]>([]);
   readonly isLoading = signal(true);
+  readonly isPaying = signal<number | null>(null);
   readonly errorMessage = signal<string | null>(null);
   readonly claimedSubscriptionIds = signal<Set<number>>(new Set());
 
@@ -71,18 +72,22 @@ export class MySubscriptionsComponent implements OnInit {
   }
 
   payPremium(subscriptionId: number): void {
-    const confirmed = confirm('Confirm premium payment?');
-    if (!confirmed) return;
+    if (!confirm('Proceed to secure payment gateway?')) return;
+    
+    this.isPaying.set(subscriptionId);
     
     this.service.payPremium(subscriptionId).pipe(
       catchError(err => {
         console.error('Failed to pay premium:', err);
-        alert('Failed to pay premium. Please try again.');
+        alert('Payment failed. Please check your balance and try again.');
+        this.isPaying.set(null);
         return of(null);
       })
     ).subscribe(res => {
       if (res) {
-        alert('Premium paid successfully!');
+        this.isPaying.set(null);
+        // Using a smooth alert or toast would be better, but keep it simple for now
+        alert('✅ Payment Received! Your policy is now active.');
         this.loadData(); 
       }
     });

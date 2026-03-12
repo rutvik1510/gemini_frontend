@@ -2,7 +2,7 @@ import { Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DecimalPipe, isPlatformBrowser, NgClass } from '@angular/common';
-import { AdminDashboardService, AdminEvent, Policy } from './admin-dashboard.service';
+import { AdminDashboardService, AdminEvent, Policy, CreateUserRequest } from './admin-dashboard.service';
 import { AuthService } from '../../core/auth.service';
 import { ClaimsOfficerService } from '../claims-officer/claims-officer.service';
 import { UnderwriterDashboardService } from '../underwriter-dashboard/underwriter-dashboard.service';
@@ -60,6 +60,11 @@ export class AdminDashboardComponent implements OnInit {
     domain: ['', Validators.required],
     baseRate: [0, [Validators.required, Validators.min(0)]],
     maxCoverageAmount: [0, [Validators.required, Validators.min(1)]],
+    deductible: [0, [Validators.required, Validators.min(0)]],
+    coversTheft: [false],
+    coversWeather: [false],
+    coversFire: [false],
+    coversCancelation: [false],
   });
 
   readonly userForm = this.fb.nonNullable.group({
@@ -172,12 +177,17 @@ export class AdminDashboardComponent implements OnInit {
 
   startEditPolicy(policy: Policy): void {
     this.editingPolicyId.set(policy.policyId ?? policy.id ?? null);
-    this.policyForm.setValue({
+    this.policyForm.patchValue({
       policyName: policy.policyName,
       description: policy.description,
       domain: policy.domain,
       baseRate: policy.baseRate,
       maxCoverageAmount: policy.maxCoverageAmount,
+      deductible: policy.deductible,
+      coversTheft: policy.coversTheft,
+      coversWeather: policy.coversWeather,
+      coversFire: policy.coversFire,
+      coversCancelation: policy.coversCancelation,
     });
     this.clearMessages();
     this.activeView.set('edit-policy');
@@ -221,7 +231,14 @@ export class AdminDashboardComponent implements OnInit {
 
   submitUnderwriter(): void {
     if (this.userForm.invalid) { this.userForm.markAllAsTouched(); return; }
-    this.service.createUnderwriter(this.userForm.getRawValue()).subscribe({
+    const val = this.userForm.getRawValue();
+    const payload: CreateUserRequest = {
+      fullName: val.name,
+      email: val.email,
+      password: val.password,
+      phone: val.phone
+    };
+    this.service.createUnderwriter(payload).subscribe({
       next: () => { this.successMessage.set('Underwriter created successfully.'); this.userForm.reset(); },
       error: (err) => { console.error('Create underwriter error:', err); this.errorMessage.set('Failed to create underwriter.'); },
     });
@@ -229,7 +246,14 @@ export class AdminDashboardComponent implements OnInit {
 
   submitClaimsOfficer(): void {
     if (this.userForm.invalid) { this.userForm.markAllAsTouched(); return; }
-    this.service.createClaimsOfficer(this.userForm.getRawValue()).subscribe({
+    const val = this.userForm.getRawValue();
+    const payload: CreateUserRequest = {
+      fullName: val.name,
+      email: val.email,
+      password: val.password,
+      phone: val.phone
+    };
+    this.service.createClaimsOfficer(payload).subscribe({
       next: () => { this.successMessage.set('Claims Officer created successfully.'); this.userForm.reset(); },
       error: (err) => { console.error('Create claims officer error:', err); this.errorMessage.set('Failed to create claims officer.'); },
     });

@@ -1,413 +1,139 @@
-<div class="min-h-screen bg-[#F9FAFB]">
+<div class="min-h-screen bg-[#F9FAFB] py-10 px-4">
+  <div class="max-w-4xl mx-auto">
 
-  <!-- Top Nav -->
-  <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <button
-        (click)="goBack()"
-        class="flex items-center gap-1.5 text-sm text-[#374151] hover:text-[#1F2937] transition-colors mr-2"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        Back
-      </button>
-      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-        </svg>
-      </div>
-      <span class="text-lg font-bold text-[#1F2937]">EventGuard</span>
-      <span class="text-[#E5E7EB]/70 mx-1">|</span>
-      <span class="text-sm font-medium text-[#374151]">Subscription Details</span>
-    </div>
-  </header>
+    <!-- Back button -->
+    <button (click)="goBack()" class="flex items-center gap-2 mb-6 text-sm text-[#374151] hover:text-[#8C1D40] transition-colors font-medium">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Back to Dashboard
+    </button>
 
-  <main class="px-6 py-8 max-w-screen-lg mx-auto">
-
-    <!-- Loading -->
     @if (isLoading()) {
-      <div class="bg-white rounded-xl shadow p-12 flex items-center justify-center">
-        <svg class="w-6 h-6 text-indigo-500 animate-spin mr-3" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-        </svg>
-        <span class="text-[#374151] text-sm">Loading subscription details...</span>
+      <div class="flex justify-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8C1D40]"></div>
       </div>
-    }
-
-    <!-- Error -->
-    @if (!isLoading() && errorMessage()) {
-      <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-        {{ errorMessage() }}
-      </div>
-    }
-
-    @if (!isLoading() && sub()) {
-
-      <!-- Page title row -->
-      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    } @else if (sub()) {
+      
+      <!-- Top Status Banner -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6 flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-[#1F2937]">Subscription #{{ sub().subscriptionId }}</h1>
-          <p class="text-sm text-[#374151] mt-0.5">Submitted {{ sub().requestedAt | date:'dd MMM yyyy' }}</p>
+          <h1 class="text-2xl font-bold text-[#1F2937]">{{ sub().eventName }}</h1>
+          <p class="text-sm text-slate-500">Subscription ID: #{{ sub().subscriptionId }}</p>
         </div>
-        <span class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold {{ statusClass(sub().status) }}">
-          {{ sub().status }}
-        </span>
-      </div>
-
-      <!-- Success / action error -->
-      @if (successMessage()) {
-        <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm mb-5 flex items-center gap-2">
-          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-          </svg>
-          {{ successMessage() }}
-        </div>
-      }
-      @if (actionError()) {
-        <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-5">
-          {{ actionError() }}
-        </div>
-      }
-
-      <div class="flex flex-col gap-6">
-
-        <!-- ── SECTION 1: Event Details ─────────────────────────────── -->
-        <div class="bg-white rounded-xl shadow p-6">
-          <h2 class="text-base font-semibold text-[#1F2937] mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            Event Details
-          </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Event Name</p>
-              <p class="text-sm font-semibold text-[#1F2937]">{{ sub().event?.eventName ?? '—' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Event Type</p>
-              <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.eventType ?? '—' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Event Date</p>
-              <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.eventDate | date:'dd MMM yyyy' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Location</p>
-              <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.location ?? '—' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Venue</p>
-              <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.isOutdoor ? 'Outdoor' : 'Indoor' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Attendees</p>
-              <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.numberOfAttendees | number }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Budget</p>
-              <p class="text-sm font-semibold text-[#1F2937]">{{ sub().event?.budget | currency:'INR':'symbol':'1.0-0' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 mb-0.5">Duration</p>
-              <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.durationInDays ?? '—' }} day(s)</p>
-            </div>
-            <div class="col-span-2">
-              <p class="text-xs text-slate-400 mb-0.5">Customer</p>
-              <p class="text-sm font-medium text-[#1F2937]">{{ sub().event?.user?.email ?? '—' }}</p>
-            </div>
-             <div class="col-span-2">
-               <p class="text-xs text-slate-400 mb-0.5">Claim Status</p>
-               <p class="text-sm font-medium text-[#1F2937]">
-                 @if (!sub().hasClaim) {
-                   Not Claimed
-                 } @else {
-                   @if (sub().claimStatus === 'PENDING') {
-                     Claim Pending
-                   } @else if (sub().claimStatus === 'APPROVED') {
-                     Claim Approved
-                   } @else if (sub().claimStatus === 'REJECTED') {
-                     Claim Rejected
-                   } @else {
-                     {{ sub().claimStatus }}
-                   }
-                 }
-               </p>
-             </div>
-          </div>
-        </div>
-
-        <!-- ── SECTION 2: Risk Inputs ───────────────────────────────── -->
-        <div class="bg-white rounded-xl shadow p-6">
-          <h2 class="text-base font-semibold text-[#1F2937] mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            </svg>
-            Risk Inputs
-          </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-
-            <div class="flex items-center gap-2 p-3 rounded-lg {{ sub().event?.isOutdoor ? 'bg-orange-50 border border-orange-200' : 'bg-slate-50 border border-slate-200' }}">
-              <span class="w-2 h-2 rounded-full {{ sub().event?.isOutdoor ? 'bg-orange-500' : 'bg-slate-300' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Outdoor Event</p>
-                <p class="text-xs {{ sub().event?.isOutdoor ? 'text-orange-600 font-semibold' : 'text-slate-400' }}">
-                  {{ sub().event?.isOutdoor ? 'Yes' : 'No' }}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 p-3 rounded-lg {{ sub().event?.alcoholAllowed ? 'bg-orange-50 border border-orange-200' : 'bg-slate-50 border border-slate-200' }}">
-              <span class="w-2 h-2 rounded-full {{ sub().event?.alcoholAllowed ? 'bg-orange-500' : 'bg-slate-300' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Alcohol Allowed</p>
-                <p class="text-xs {{ sub().event?.alcoholAllowed ? 'text-orange-600 font-semibold' : 'text-slate-400' }}">
-                  {{ sub().event?.alcoholAllowed ? 'Yes' : 'No' }}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 p-3 rounded-lg {{ sub().event?.fireworksUsed ? 'bg-red-50 border border-red-200' : 'bg-slate-50 border border-slate-200' }}">
-              <span class="w-2 h-2 rounded-full {{ sub().event?.fireworksUsed ? 'bg-red-500' : 'bg-slate-300' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Fireworks Used</p>
-                <p class="text-xs {{ sub().event?.fireworksUsed ? 'text-red-600 font-semibold' : 'text-slate-400' }}">
-                  {{ sub().event?.fireworksUsed ? 'Yes' : 'No' }}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 p-3 rounded-lg {{ sub().event?.celebrityInvolved ? 'bg-orange-50 border border-orange-200' : 'bg-slate-50 border border-slate-200' }}">
-              <span class="w-2 h-2 rounded-full {{ sub().event?.celebrityInvolved ? 'bg-orange-500' : 'bg-slate-300' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Celebrity Involved</p>
-                <p class="text-xs {{ sub().event?.celebrityInvolved ? 'text-orange-600 font-semibold' : 'text-slate-400' }}">
-                  {{ sub().event?.celebrityInvolved ? 'Yes' : 'No' }}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 p-3 rounded-lg {{ sub().event?.temporaryStructure ? 'bg-yellow-50 border border-yellow-200' : 'bg-slate-50 border border-slate-200' }}">
-              <span class="w-2 h-2 rounded-full {{ sub().event?.temporaryStructure ? 'bg-yellow-500' : 'bg-slate-300' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Temporary Structure</p>
-                <p class="text-xs {{ sub().event?.temporaryStructure ? 'text-yellow-700 font-semibold' : 'text-slate-400' }}">
-                  {{ sub().event?.temporaryStructure ? 'Yes' : 'No' }}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
-              <span class="w-2 h-2 rounded-full {{ sub().event?.locationRiskLevel?.toUpperCase() === 'HIGH' ? 'bg-red-500' : sub().event?.locationRiskLevel?.toUpperCase() === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Location Risk</p>
-                <p class="text-xs font-semibold text-slate-600">{{ sub().event?.locationRiskLevel ?? '—' }}</p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
-              <span class="w-2 h-2 rounded-full {{ sub().event?.securityLevel?.toUpperCase() === 'LOW' ? 'bg-red-500' : sub().event?.securityLevel?.toUpperCase() === 'STANDARD' ? 'bg-yellow-500' : 'bg-green-500' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Security Level</p>
-                <p class="text-xs font-semibold text-slate-600">{{ sub().event?.securityLevel ?? '—' }}</p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
-              <span class="w-2 h-2 rounded-full {{ (sub().event?.numberOfAttendees ?? 0) > 1000 ? 'bg-orange-500' : 'bg-green-500' }}"></span>
-              <div>
-                <p class="text-xs font-medium text-[#1F2937]">Attendees</p>
-                <p class="text-xs font-semibold text-slate-600">{{ sub().event?.numberOfAttendees | number }}</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- ── SECTION 3: Risk Breakdown ───────────────────────────── -->
-        <div class="bg-white rounded-xl shadow p-6">
-          <h2 class="text-base font-semibold text-[#1F2937] mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-            </svg>
-            Event Risk Breakdown
-          </h2>
-
-          @if (getRiskBreakdown().length === 0) {
-            <p class="text-sm text-slate-400 italic">No risk factors applied — base risk of 0%.</p>
-          } @else {
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="border-b border-slate-100">
-                    <th class="text-left py-2 text-xs font-semibold text-[#374151] uppercase">Risk Factor</th>
-                    <th class="text-right py-2 text-xs font-semibold text-[#374151] uppercase">Contribution</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (factor of getRiskBreakdown(); track factor.factor) {
-                    <tr class="border-b border-slate-50">
-                      <td class="py-2 text-[#1F2937]">{{ factor.factor }}</td>
-                      <td class="py-2 text-right font-semibold text-orange-600">+{{ factor.contribution | number:'1.1-1' }}%</td>
-                    </tr>
-                  }
-                </tbody>
-                <tfoot>
-                  <tr class="border-t-2 border-slate-200">
-                    <td class="pt-3 text-sm font-bold text-[#1F2937]">Event Risk Total</td>
-                    <td class="pt-3 text-right text-sm font-bold text-red-600">{{ sub().riskPercentage | number:'1.1-2' }}%</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+        <div class="flex flex-col items-end gap-2">
+          <span [class]="'px-3 py-1 rounded-full text-xs font-bold ' + statusClass(sub().status)">
+            {{ sub().status }}
+          </span>
+          @if (sub().status === 'REJECTED' && sub().rejectionReason) {
+            <p class="text-xs text-red-600 font-bold italic">Reason: {{ sub().rejectionReason }}</p>
           }
         </div>
+      </div>
 
-        <!-- ── SECTION 4: Weather Information ─────────────────────── -->
-        <div class="bg-white rounded-xl shadow p-6">
-          <h2 class="text-base font-semibold text-[#1F2937] mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
-            </svg>
-            Weather Information
-          </h2>
-          <div class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-4 flex items-center gap-3">
-            <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
-            </svg>
-            <p class="text-sm text-[#1F2937]">
-              Weather data integration is not yet available. Weather risk is currently not included in premium calculations.
-            </p>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Event & Customer Info -->
+        <div class="lg:col-span-2 space-y-6">
+          
+          <!-- Event Summary -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-bold text-[#1F2937] mb-4 border-b pb-2">Event Summary</h2>
+            <div class="grid grid-cols-2 gap-y-4">
+              <div><p class="text-xs text-slate-500 uppercase font-bold">Type</p><p class="text-sm font-medium">{{ sub().eventType }}</p></div>
+              <div><p class="text-xs text-slate-500 uppercase font-bold">Date</p><p class="text-sm font-medium">{{ sub().eventDate }}</p></div>
+              <div><p class="text-xs text-slate-500 uppercase font-bold">Location</p><p class="text-sm font-medium">{{ sub().location }}</p></div>
+              <div><p class="text-xs text-slate-500 uppercase font-bold">Attendees</p><p class="text-sm font-medium">{{ sub().numberOfAttendees | number }}</p></div>
+              <div><p class="text-xs text-slate-500 uppercase font-bold">Budget</p><p class="text-sm font-medium">₹{{ sub().budget | number }}</p></div>
+              <div><p class="text-xs text-slate-500 uppercase font-bold">Customer</p><p class="text-sm font-medium">{{ sub().customerName }}</p></div>
+            </div>
           </div>
-        </div>
 
-        <!-- ── SECTION 5: Final Risk Summary ───────────────────────── -->
-        <div class="bg-white rounded-xl shadow p-6">
-          <h2 class="text-base font-semibold text-[#1F2937] mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-            </svg>
-            Final Risk Summary
-          </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
-              <p class="text-xs text-slate-400 mb-1">Event Risk</p>
-              <p class="text-2xl font-bold text-orange-600">{{ sub().riskPercentage | number:'1.1-2' }}%</p>
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
-              <p class="text-xs text-slate-400 mb-1">Weather Risk</p>
-              <p class="text-2xl font-bold text-slate-400">N/A</p>
-            </div>
-            <div class="bg-[#F3F4F6] border border-indigo-200 rounded-lg p-4 text-center">
-              <p class="text-xs text-indigo-400 mb-1">Total Risk</p>
-              <p class="text-2xl font-bold text-indigo-700">{{ sub().riskPercentage | number:'1.1-2' }}%</p>
-              <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-bold {{ riskLevelClass(sub().riskPercentage) }}">
-                {{ getRiskLevel(sub().riskPercentage) }}
-              </span>
+          <!-- Safety & Security Measures -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-bold text-[#1F2937] mb-4 border-b pb-2">Safety Disclosures</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="flex items-center gap-2 p-3 rounded-xl border" [class.bg-green-50]="sub().hasFireNOC" [class.border-green-200]="sub().hasFireNOC">
+                <span [class]="sub().hasFireNOC ? 'text-green-600' : 'text-slate-300'">●</span>
+                <span class="text-sm font-medium">Valid Fire NOC</span>
+              </div>
+              <div class="flex items-center gap-2 p-3 rounded-xl border" [class.bg-green-50]="sub().hasProfessionalSecurity" [class.border-green-200]="sub().hasProfessionalSecurity">
+                <span [class]="sub().hasProfessionalSecurity ? 'text-green-600' : 'text-slate-300'">●</span>
+                <span class="text-sm font-medium">Professional Guards</span>
+              </div>
+              <div class="flex items-center gap-2 p-3 rounded-xl border" [class.bg-green-50]="sub().hasCCTV" [class.border-green-200]="sub().hasCCTV">
+                <span [class]="sub().hasCCTV ? 'text-green-600' : 'text-slate-300'">●</span>
+                <span class="text-sm font-medium">CCTV Coverage</span>
+              </div>
+              <div class="flex items-center gap-2 p-3 rounded-xl border" [class.bg-green-50]="sub().hasMetalDetectors" [class.border-green-200]="sub().hasMetalDetectors">
+                <span [class]="sub().hasMetalDetectors ? 'text-green-600' : 'text-slate-300'">●</span>
+                <span class="text-sm font-medium">Metal Detectors</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- ── SECTION 6: Premium Calculation ─────────────────────── -->
-        <div class="bg-white rounded-xl shadow p-6">
-          <h2 class="text-base font-semibold text-[#1F2937] mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-[#16a34a]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Premium Calculation
-          </h2>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <tbody class="divide-y divide-[#8C1D40]/8">
-                <tr>
-                  <td class="py-3 text-[#374151]">Policy</td>
-                  <td class="py-3 text-right font-medium text-[#1F2937]">{{ sub().policy?.policyName ?? '—' }}</td>
-                </tr>
-                <tr>
-                  <td class="py-3 text-[#374151]">Policy Description</td>
-                  <td class="py-3 text-right text-slate-600 max-w-xs">{{ sub().policy?.description ?? '—' }}</td>
-                </tr>
-                <tr>
-                  <td class="py-3 text-[#374151]">Policy Base Rate</td>
-                  <td class="py-3 text-right font-medium text-[#1F2937]">{{ (sub().baseRate ?? sub().policy?.baseRate ?? 0) | number:'1.1-2' }}%</td>
-                </tr>
-                <tr>
-                  <td class="py-3 text-[#374151]">Event Risk Factor</td>
-                  <td class="py-3 text-right font-medium text-orange-600">+{{ sub().riskPercentage | number:'1.1-2' }}%</td>
-                </tr>
-                <tr class="bg-indigo-50/30">
-                  <td class="py-3 px-2 text-[#1F2937] font-semibold italic">Total Combined Rate</td>
-                  <td class="py-3 px-2 text-right font-bold text-indigo-600">
-                    {{ ((sub().baseRate ?? sub().policy?.baseRate ?? 0) + (sub().riskPercentage ?? 0)) | number:'1.1-2' }}%
-                  </td>
-                </tr>
-                <tr>
-                  <td class="py-3 text-[#374151]">Event Budget</td>
-                  <td class="py-3 text-right font-medium text-[#1F2937]">{{ sub().event?.budget | currency:'INR':'symbol':'1.0-0' }}</td>
-                </tr>
-                <tr class="font-semibold transition-all duration-300">
-                  <td class="py-3 text-[#1F2937]">Final Premium</td>
-                  <td class="py-3 text-right text-xl font-bold text-indigo-700">{{ (sub().premiumAmount ?? sub().estimatedPremium ?? 0) | currency:'INR':'symbol':'1.0-0' }}</td>
-                </tr>
-                <tr>
-                  <td class="py-3 text-[#374151]">Max Coverage</td>
-                  <td class="py-3 text-right font-semibold text-green-700">{{ (sub().policy?.maxCoverageAmount ?? sub().policy?.maxCoverage ?? 0) | currency:'INR':'symbol':'1.0-0' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- ── SECTION 7: Underwriter Actions ───────────────────────── -->
-        @if (sub().status === 'PENDING') {
-          <div class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-base font-semibold text-[#1F2937] mb-2">Underwriter Decision</h2>
-            <p class="text-sm text-[#374151] mb-5">Review the risk factors above and approve or reject this subscription.</p>
-            <div class="flex items-center gap-4">
-              <button
-                type="button"
-                [disabled]="processingAction() !== null"
-                (click)="approve()"
-                class="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                </svg>
-                {{ processingAction() === 'approve' ? 'Approving...' : 'Approve Subscription' }}
-              </button>
-              <button
-                type="button"
-                [disabled]="processingAction() !== null"
-                (click)="reject()"
-                class="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                {{ processingAction() === 'reject' ? 'Rejecting...' : 'Reject Subscription' }}
-              </button>
-            </div>
-          </div>
-        }
-
-        @if (sub().status !== 'PENDING') {
-          <div class="bg-slate-50 rounded-xl border border-slate-200 p-5">
-            <p class="text-sm text-[#1F2937]">
-              @if (sub().status === 'APPROVED') {
-                ✅ Approved by <span class="font-medium text-[#1F2937]">{{ sub().approvedBy?.email ?? 'Underwriter' }}</span>
-                on {{ sub().approvedAt | date:'dd MMM yyyy' }}
-              } @else {
-                ❌ Rejected by <span class="font-medium text-[#1F2937]">{{ sub().approvedBy?.email ?? 'Underwriter' }}</span>
-                on {{ sub().approvedAt | date:'dd MMM yyyy' }}
+        <!-- Right: Risk & Financials -->
+        <div class="space-y-6">
+          
+          <!-- Risk Breakdown -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-bold text-[#1F2937] mb-4">Risk Breakdown</h2>
+            <div class="space-y-3 mb-6">
+              @for (item of getRiskBreakdown(); track item.factor) {
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-slate-600">{{ item.factor }}</span>
+                  <span [class]="item.contribution.toString().startsWith('-') ? 'text-green-600 font-bold' : 'text-red-600 font-bold'">
+                    {{ item.contribution }}%
+                  </span>
+                </div>
               }
-            </p>
+            </div>
+            <div class="pt-4 border-t border-slate-100">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-base font-bold text-[#1F2937]">Total Risk Score</span>
+                <span class="text-xl font-black text-[#8C1D40]">{{ sub().totalRisk }}%</span>
+              </div>
+              <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">System Generated Estimate</p>
+            </div>
           </div>
-        }
 
+          <!-- Premium -->
+          <div class="bg-[#1F2937] rounded-2xl shadow-xl p-6 text-white">
+            <p class="text-xs text-white/60 uppercase font-bold mb-1">Calculated Premium</p>
+            <h3 class="text-3xl font-black mb-6">₹{{ sub().premiumAmount | number }}</h3>
+            
+            @if (sub().status === 'PENDING') {
+              <div class="space-y-3">
+                <button (click)="approve()" [disabled]="processingAction()" 
+                  class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-xl font-bold transition-all disabled:opacity-50">
+                  Approve Policy
+                </button>
+                <button (click)="reject()" [disabled]="processingAction()" 
+                  class="w-full py-3 bg-red-600/20 hover:bg-red-600 border border-red-600 rounded-xl font-bold transition-all disabled:opacity-50">
+                  Reject Application
+                </button>
+              </div>
+            } @else {
+              <div class="p-3 bg-white/10 rounded-xl border border-white/10 text-center text-sm font-medium">
+                Decision finalized on {{ sub().approvedAt | date:'mediumDate' }}
+              </div>
+            }
+          </div>
+
+          @if (actionError()) {
+            <p class="text-sm text-red-600 font-bold text-center bg-red-50 p-3 rounded-lg border border-red-100">{{ actionError() }}</p>
+          }
+          @if (successMessage()) {
+            <p class="text-sm text-green-600 font-bold text-center bg-green-50 p-3 rounded-lg border border-green-100">{{ successMessage() }}</p>
+          }
+
+        </div>
+      </div>
+
+    } @else {
+      <div class="bg-white p-10 rounded-2xl shadow-sm border border-slate-200 text-center">
+        <p class="text-slate-500">{{ errorMessage() || 'No data found' }}</p>
       </div>
     }
 
-  </main>
+  </div>
 </div>

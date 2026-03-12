@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+  import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EventService } from './event.service';
@@ -15,9 +15,9 @@ export class CreateEventComponent implements OnInit {
 
   readonly eventTypes = ['OUTDOOR_MUSIC_CONCERT', 'CORPORATE_TECH_CONFERENCE'];
 
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
-  isSubmitting = false;
+  readonly successMessage = signal<string | null>(null);
+  readonly errorMessage = signal<string | null>(null);
+  readonly isSubmitting = signal(false);
 
   today = new Date().toISOString().split('T')[0];
 
@@ -31,8 +31,13 @@ export class CreateEventComponent implements OnInit {
     budget: ['', [Validators.required, Validators.min(1000)]],
     numberOfAttendees: ['', [Validators.required, Validators.min(1)]],
     durationInDays: [1, [Validators.required, Validators.min(1)]],
-    locationRiskLevel: ['', Validators.required],
-    securityLevel: ['', Validators.required],
+
+    // Objective Safety & Security (Replaces subjective dropdowns)
+    hasProfessionalSecurity: [false],
+    hasCCTV: [false],
+    hasMetalDetectors: [false],
+    hasFireNOC: [false],
+    hasOnSiteFireSafety: [false],
 
     // Music Concert specific
     isOutdoor: [false],
@@ -57,7 +62,6 @@ export class CreateEventComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Dynamically add/remove required validator on venueType based on event type
     this.eventForm.controls.eventType.valueChanges.subscribe((type) => {
       const venueCtrl = this.eventForm.controls.venueType;
       if (type === 'CORPORATE_TECH_CONFERENCE') {
@@ -89,20 +93,28 @@ export class CreateEventComponent implements OnInit {
     }
 
     const formValue = this.eventForm.getRawValue();
-    this.isSubmitting = true;
-    this.successMessage = null;
-    this.errorMessage = null;
+    this.isSubmitting.set(true);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+
+    // Use common payload for all factual data
+    const commonPayload = {
+      eventName: formValue.eventName,
+      eventDate: formValue.eventDate,
+      location: formValue.location,
+      budget: formValue.budget,
+      numberOfAttendees: formValue.numberOfAttendees,
+      durationInDays: formValue.durationInDays,
+      hasProfessionalSecurity: formValue.hasProfessionalSecurity,
+      hasCCTV: formValue.hasCCTV,
+      hasMetalDetectors: formValue.hasMetalDetectors,
+      hasFireNOC: formValue.hasFireNOC,
+      hasOnSiteFireSafety: formValue.hasOnSiteFireSafety,
+    };
 
     if (this.isMusicConcert) {
       const payload = {
-        eventName: formValue.eventName,
-        eventDate: formValue.eventDate,
-        location: formValue.location,
-        budget: formValue.budget,
-        numberOfAttendees: formValue.numberOfAttendees,
-        durationInDays: formValue.durationInDays,
-        locationRiskLevel: formValue.locationRiskLevel,
-        securityLevel: formValue.securityLevel,
+        ...commonPayload,
         isOutdoor: formValue.isOutdoor,
         alcoholAllowed: formValue.alcoholAllowed,
         temporaryStage: formValue.temporaryStage,
@@ -110,44 +122,33 @@ export class CreateEventComponent implements OnInit {
         celebrityInvolved: formValue.celebrityInvolved,
       };
       this.eventService.createMusicConcert(payload).subscribe({
-        next: (res) => {
-          console.log('Music concert created:', res);
-          this.successMessage = 'Event created successfully!';
-          this.isSubmitting = false;
+        next: () => {
+          this.successMessage.set('Event created successfully!');
+          this.isSubmitting.set(false);
           this.eventForm.reset();
         },
         error: (err) => {
-          console.error('Failed to create music concert:', err);
-          this.errorMessage = 'Failed to create event. Please try again.';
-          this.isSubmitting = false;
+          this.errorMessage.set(err?.error?.message ?? 'Failed to create event.');
+          this.isSubmitting.set(false);
         },
       });
     } else if (this.isCorporateConference) {
       const payload = {
-        eventName: formValue.eventName,
-        eventDate: formValue.eventDate,
-        location: formValue.location,
-        budget: formValue.budget,
-        numberOfAttendees: formValue.numberOfAttendees,
-        durationInDays: formValue.durationInDays,
-        locationRiskLevel: formValue.locationRiskLevel,
-        securityLevel: formValue.securityLevel,
+        ...commonPayload,
         venueType: formValue.venueType,
         highValueEquipment: formValue.highValueEquipment,
         temporaryBooths: formValue.temporaryBooths,
         emergencyPreparednessLevel: formValue.emergencyPreparednessLevel,
       };
       this.eventService.createCorporateConference(payload).subscribe({
-        next: (res) => {
-          console.log('Corporate conference created:', res);
-          this.successMessage = 'Event created successfully!';
-          this.isSubmitting = false;
+        next: () => {
+          this.successMessage.set('Event created successfully!');
+          this.isSubmitting.set(false);
           this.eventForm.reset();
         },
         error: (err) => {
-          console.error('Failed to create corporate conference:', err);
-          this.errorMessage = 'Failed to create event. Please try again.';
-          this.isSubmitting = false;
+          this.errorMessage.set(err?.error?.message ?? 'Failed to create event.');
+          this.isSubmitting.set(false);
         },
       });
     }

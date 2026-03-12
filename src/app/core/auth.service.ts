@@ -20,9 +20,11 @@ export class AuthService {
 
   // ── Token storage ──────────────────────────────────────────────────
 
-  login(token: string): void {
+  login(token: string, name: string, email: string): void {
     if (this.isBrowser) {
       localStorage.setItem(this.TOKEN_KEY, token);
+      localStorage.setItem('user_name', name);
+      localStorage.setItem('user_email', email);
     }
     this._isLoggedIn.set(true);
   }
@@ -39,8 +41,15 @@ export class AuthService {
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem('user_name');
+      localStorage.removeItem('user_email');
     }
     this._isLoggedIn.set(false);
+  }
+
+  getUserName(): string | null {
+    if (!this.isBrowser) return null;
+    return localStorage.getItem('user_name');
   }
 
   // ── JWT decoding

@@ -10,6 +10,11 @@ export interface Policy {
   domain: string;
   baseRate: number;
   maxCoverageAmount: number;
+  deductible: number;
+  coversTheft: boolean;
+  coversWeather: boolean;
+  coversFire: boolean;
+  coversCancelation: boolean;
   isActive?: boolean;
   status?: string;
 }
@@ -20,12 +25,18 @@ export interface CreatePolicyRequest {
   domain: string;
   baseRate: number;
   maxCoverageAmount: number;
+  deductible: number;
+  coversTheft: boolean;
+  coversWeather: boolean;
+  coversFire: boolean;
+  coversCancelation: boolean;
 }
 
 export interface CreateUserRequest {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
+  phone: string;
 }
 
 export interface ApiResponse<T> {
@@ -41,6 +52,9 @@ export interface AdminStats {
   totalEvents: number;
   pendingSubscriptions: number;
   pendingClaims: number;
+  totalRevenue: number;
+  totalPayouts: number;
+  netProfit: number;
 }
 
 export interface AdminEvent {
@@ -90,11 +104,11 @@ export class AdminDashboardService {
   }
 
   getUnderwriters(): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.base}/dashboard/underwriters`);
+    return this.http.get<ApiResponse<any[]>>(`${this.base}/underwriters`);
   }
 
   getClaimsOfficers(): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.base}/dashboard/claims-officers`);
+    return this.http.get<ApiResponse<any[]>>(`${this.base}/claims-officers`);
   }
 
   getStats(): Observable<ApiResponse<AdminStats>> {

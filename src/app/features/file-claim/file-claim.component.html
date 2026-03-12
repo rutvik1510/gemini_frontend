@@ -30,19 +30,19 @@
       </div>
 
       <!-- Success -->
-      @if (successMessage) {
+      @if (successMessage()) {
         <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm mb-5 flex items-center gap-2">
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          {{ successMessage }}
+          {{ successMessage() }}
         </div>
       }
 
       <!-- Error -->
-      @if (errorMessage) {
+      @if (errorMessage()) {
         <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-5">
-          {{ errorMessage }}
+          {{ errorMessage() }}
         </div>
       }
 
@@ -181,10 +181,10 @@
         <!-- Submit -->
         <button
           type="submit"
-          [disabled]="form.invalid || isSubmitting"
+          [disabled]="form.invalid || isSubmitting()"
           class="w-full py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors mt-2"
         >
-          {{ isSubmitting ? 'Submitting...' : 'File Claim' }}
+          {{ isSubmitting() ? 'Submitting...' : 'File Claim' }}
         </button>
 
       </form>
