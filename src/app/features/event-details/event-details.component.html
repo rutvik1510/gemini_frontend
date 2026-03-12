@@ -1,0 +1,239 @@
+<div class="min-h-screen bg-[#F9FAFB] py-10 px-4">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Back button -->
+    <button (click)="goBack()"
+      class="flex items-center gap-2 mb-6 text-sm text-[#374151] hover:text-[#1F2937] transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to My Events
+    </button>
+
+    <!-- Global error -->
+    @if (errorMessage()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-6">
+      {{ errorMessage() }}
+    </div>
+    }
+
+    <!-- ===== EVENT DETAILS CARD ===== -->
+    @if (isLoadingEvent()) {
+    <div class="bg-white rounded-xl shadow-lg p-8 flex items-center justify-center mb-6">
+      <svg class="w-6 h-6 text-blue-500 animate-spin mr-3" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+      <span class="text-[#374151] text-sm">Loading event details...</span>
+    </div>
+    }
+
+    @if (!isLoadingEvent() && event()) {
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
+          <svg class="w-5 h-5 text-[#8C1D40]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-[#1F2937]">{{ event().eventName }}</h1>
+          <p class="text-xs text-slate-400">Event Information</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div>
+          <p class="text-xs text-slate-400 mb-0.5">Location</p>
+          <p class="text-sm font-medium text-[#1F2937]">{{ event().location }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 mb-0.5">Date</p>
+          <p class="text-sm font-medium text-[#1F2937]">{{ event().eventDate }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 mb-0.5">Duration</p>
+          <p class="text-sm font-medium text-[#1F2937]">{{ event().durationInDays ?? '—' }} day(s)</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 mb-0.5">Budget</p>
+          <p class="text-sm font-medium text-[#1F2937]">{{ event().budget | currency:'INR':'symbol':'1.0-0' }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 mb-0.5">Attendees</p>
+          <p class="text-sm font-medium text-[#1F2937]">{{ event().numberOfAttendees | number }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 mb-0.5">Event Type</p>
+          <span
+            class="inline-block px-2 py-0.5 rounded-full text-xs font-medium
+              {{ event().eventType === 'OUTDOOR_MUSIC_CONCERT' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-[#6E1733]' }}">
+            {{ event().eventType }}
+          </span>
+        </div>
+      </div>
+    </div>
+    }
+
+    @if (quoteResult()) {
+    <div class="bg-green-50 border border-green-200 rounded-xl shadow p-6 mb-6">
+      <div class="flex items-center gap-2 mb-6">
+        <svg class="w-6 h-6 text-[#16a34a]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h2 class="text-lg font-bold text-green-800">Premium Breakdown</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Left side: Summary -->
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs text-[#16a34a] font-bold uppercase tracking-wider mb-1">Selected Policy</p>
+            <p class="text-base font-bold text-[#1F2937]">{{ quoteResult().policyName }}</p>
+          </div>
+          <div class="flex gap-10">
+            <div>
+              <p class="text-xs text-[#16a34a] font-bold uppercase tracking-wider mb-1">Status</p>
+              <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-[#1D4ED8]">
+                {{ quoteResult().status }}
+              </span>
+            </div>
+            <div>
+              <p class="text-xs text-[#16a34a] font-bold uppercase tracking-wider mb-1">Risk Level</p>
+              <span
+                class="inline-block px-2.5 py-1 rounded-full text-xs font-bold
+                  {{ quoteResult().riskLevel === 'HIGH' ? 'bg-red-100 text-red-700' : quoteResult().riskLevel === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700' }}">
+                {{ quoteResult().riskLevel }}
+              </span>
+            </div>
+            <div>
+              <p class="text-xs text-[#16a34a] font-bold uppercase tracking-wider mb-1">Max Coverage</p>
+              <p class="text-sm font-bold text-[#1F2937]">{{ (quoteResult().maxCoverageAmount ??
+                quoteResult()?.policy?.maxCoverageAmount ?? 0) | currency:'INR':'symbol':'1.0-0' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side: Calculation Breakdown -->
+        <div class="bg-white/50 rounded-xl p-5 border border-green-100">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-slate-600">Event Budget</span>
+              <span class="font-semibold text-[#1F2937]">{{ event().budget | currency:'INR':'symbol':'1.0-0' }}</span>
+            </div>
+            <div class="h-px bg-green-100 my-2"></div>
+
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-slate-600">Policy Base Rate</span>
+              <span class="font-semibold text-[#1F2937]">{{ (quoteResult()?.baseRate ?? quoteResult()?.policy?.baseRate
+                ?? 0) }}%</span>
+            </div>
+
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-slate-600">Event Risk Factor</span>
+              <span class="font-semibold text-orange-600">+{{ (quoteResult()?.eventRisk ?? quoteResult()?.riskPercentage
+                ?? 0) }}%</span>
+            </div>
+
+            <!-- Weather Risk (if any) -->
+            @if (quoteResult()?.weatherRisk > 0 || event().isOutdoor) {
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-slate-600">Weather Risk Factor</span>
+              <span class="font-semibold text-sky-600">+{{ (quoteResult()?.weatherRisk ?? 0) }}%</span>
+            </div>
+            }
+
+            <div class="flex justify-between items-center text-sm font-bold pt-1">
+              <span class="text-slate-800">Total Combined Rate</span>
+              <span class="text-[#1D4ED8]">{{ ((quoteResult()?.baseRate ?? quoteResult()?.policy?.baseRate ?? 0) +
+                (quoteResult()?.riskPercentage ?? 0)) | number:'1.1-2' }}%</span>
+            </div>
+
+            <div class="h-px bg-green-200 my-2 shadow-sm"></div>
+            <div class="flex justify-between items-center">
+              <span class="text-base font-bold text-slate-900">Final Premium</span>
+              <span class="text-xl font-extrabold text-[#1F2937]">{{ (quoteResult()?.premiumAmount ??
+                quoteResult()?.estimatedPremium ?? 0) | currency:'INR':'symbol':'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Subscribe error -->
+    @if (subscribeError()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-6">
+      {{ subscribeError() }}
+    </div>
+    }
+
+    <!-- ===== AVAILABLE POLICIES ===== -->
+    <h2 class="text-lg font-bold text-[#1F2937] mb-4">Available Policies</h2>
+
+    @if (isLoadingPolicies()) {
+    <div class="bg-white rounded-xl shadow-lg p-8 flex items-center justify-center">
+      <svg class="w-6 h-6 text-blue-500 animate-spin mr-3" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+      <span class="text-[#374151] text-sm">Loading policies...</span>
+    </div>
+    }
+
+    @if (!isLoadingPolicies() && policies().length === 0) {
+    <div class="bg-white rounded-xl shadow p-8 text-center text-[#374151] text-sm">
+      No active policies available at this time.
+    </div>
+    }
+
+    @if (!isLoadingPolicies() && policies().length > 0) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      @for (policy of policies(); track (policy.policyId ?? policy.id)) {
+      <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col gap-3">
+        <div>
+          <h3 class="text-base font-semibold text-[#1F2937]">{{ policy.policyName }}</h3>
+          <p class="text-sm text-[#374151] mt-1">{{ policy.description }}</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-1">
+          <div>
+            <p class="text-xs text-slate-400">Base Rate</p>
+            <p class="text-sm font-medium text-[#1F2937]">{{ policy.baseRate }}%</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400">Max Coverage</p>
+            <p class="text-sm font-medium text-[#1F2937]">{{ (policy.maxCoverageAmount ?? policy.maxCoverage ?? 0) |
+              currency:'INR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400">Domain</p>
+            <p class="text-sm font-medium text-[#1F2937]">{{ policy.domain }}</p>
+          </div>
+        </div>
+        @if (subscribedPolicyIds().has(policy.policyId ?? policy.id)) {
+        <div class="mt-auto flex flex-col gap-2">
+          <span class="flex items-center gap-1 text-sm font-semibold text-[#16a34a]">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Subscribed
+          </span>
+          <button disabled
+            class="w-full py-2 rounded-lg bg-gray-200 text-gray-500 text-sm font-medium cursor-not-allowed">
+            Subscribed ✓
+          </button>
+        </div>
+        } @else {
+        <button (click)="subscribe(policy.policyId ?? policy.id)"
+          [disabled]="subscribingPolicyId() === (policy.policyId ?? policy.id)"
+          class="mt-auto w-full py-2 rounded-lg bg-[#8C1D40] hover:bg-[#6E1733] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors">
+          {{ subscribingPolicyId() === (policy.policyId ?? policy.id) ? 'Subscribing...' : 'Subscribe' }}
+        </button>
+        }
+      </div>
+      }
+    </div>
+    }
+
+  </div>
+</div>

@@ -1,0 +1,125 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-[#1F2937] via-[#1F2937] to-[#1F2937] flex items-center justify-center px-4 py-10 relative overflow-hidden">
+
+  <!-- Ambient blobs -->
+  <div
+    class="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#8C1D40] rounded-full opacity-10 blur-3xl pointer-events-none">
+  </div>
+  <div
+    class="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-[#6E1733] rounded-full opacity-10 blur-3xl pointer-events-none">
+  </div>
+
+  <div class="w-full max-w-md relative z-10">
+
+    <!-- Card -->
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl px-10 py-12"
+      style="box-shadow: 0 30px 80px -12px rgba(140,29,64,0.45), 0 0 0 1px rgba(255,255,255,0.06)">
+
+      <!-- Header -->
+      <div class="mb-9 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
+          style="background: linear-gradient(135deg, #374151, #8C1D40); box-shadow: 0 8px 24px rgba(140,29,64,0.5)">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+        </div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">Create Account</h1>
+        <p class="mt-2 text-base text-[#E5E7EB]/70">Join thousands of event organizers</p>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="space-y-5">
+
+        <!-- Name -->
+        <div>
+          <label for="name" class="block text-sm font-semibold text-[#E5E7EB] mb-2">Full Name</label>
+          <input id="name" type="text" formControlName="name" autocomplete="name" placeholder="Rahul Sharma"
+            class="w-full px-5 py-3.5 rounded-xl text-base bg-white/8 border border-white/15 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-[#8C1D40] focus:border-transparent transition duration-200"
+            [class.border-red-400]="nameControl.touched && nameControl.invalid" />
+          @if (nameControl.touched && nameControl.errors?.['required']) {
+          <div class="mt-2 text-sm text-red-400">Name is required.</div>
+          }
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm font-semibold text-[#E5E7EB] mb-2">Email address</label>
+          <input id="email" type="email" formControlName="email" autocomplete="email" placeholder="you@example.com"
+            class="w-full px-5 py-3.5 rounded-xl text-base bg-white/8 border border-white/15 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-[#8C1D40] focus:border-transparent transition duration-200"
+            [class.border-red-400]="emailControl.touched && emailControl.invalid" />
+          @if (emailControl.touched && emailControl.errors?.['required']) {
+          <div class="mt-2 text-sm text-red-400">Email is required.</div>
+          }
+          @if (emailControl.touched && emailControl.errors?.['email']) {
+          <div class="mt-2 text-sm text-red-400">Enter a valid email address.</div>
+          }
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label for="phone" class="block text-sm font-semibold text-[#E5E7EB] mb-2">Phone Number</label>
+          <input id="phone" type="tel" formControlName="phone" autocomplete="tel" placeholder="+91 98765 43210"
+            class="w-full px-5 py-3.5 rounded-xl text-base bg-white/8 border border-white/15 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-[#8C1D40] focus:border-transparent transition duration-200"
+            [class.border-red-400]="phoneControl.touched && phoneControl.invalid" />
+          @if (phoneControl.touched && phoneControl.errors?.['required']) {
+          <div class="mt-2 text-sm text-red-400">Phone number is required.</div>
+          }
+          @if (phoneControl.touched && phoneControl.errors?.['pattern']) {
+          <div class="mt-2 text-sm text-red-400">Enter a valid 10-digit phone number.</div>
+          }
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-sm font-semibold text-[#E5E7EB] mb-2">Password</label>
+          <input id="password" type="password" formControlName="password" autocomplete="new-password"
+            placeholder="••••••••"
+            class="w-full px-5 py-3.5 rounded-xl text-base bg-white/8 border border-white/15 text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-[#8C1D40] focus:border-transparent transition duration-200"
+            [class.border-red-400]="passwordControl.touched && passwordControl.invalid" />
+          @if (passwordControl.touched && passwordControl.errors?.['required']) {
+          <div class="mt-2 text-sm text-red-400">Password is required.</div>
+          }
+          @if (passwordControl.touched && passwordControl.errors?.['minlength']) {
+          <div class="mt-2 text-sm text-red-400">Password must be at least 6 characters.</div>
+          }
+        </div>
+
+        <!-- API error -->
+        @if (errorMessage()) {
+        <div class="flex items-center gap-3 rounded-xl bg-red-500/12 border border-red-400/30 px-4 py-3.5">
+          <svg class="w-5 h-5 text-red-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          <p class="text-sm text-red-300">{{ errorMessage() }}</p>
+        </div>
+        }
+
+        <!-- Register Button -->
+        <button type="submit" [disabled]="isLoading()" class="w-full flex items-center justify-center gap-2.5 py-4 px-4 rounded-xl text-base font-bold text-white
+                 disabled:opacity-60 disabled:cursor-not-allowed
+                 transition-all duration-200 active:scale-[0.98] mt-2"
+          style="background: linear-gradient(135deg, #8C1D40, #6E1733); box-shadow: 0 8px 24px rgba(140,29,64,0.4)">
+          @if (isLoading()) {
+          <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          Creating account…
+          } @else {
+          Create Account
+          }
+        </button>
+
+        <button type="button" (click)="goToLogin()"
+          class="w-full text-center text-sm text-[#E5E7EB]/60 hover:text-white transition-colors duration-200 mt-2">
+          Already have an account?
+          <span class="text-[#3B82F6] font-semibold ml-1">Sign in</span>
+        </button>
+
+      </form>
+    </div>
+  </div>
+</div>

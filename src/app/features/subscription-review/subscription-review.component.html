@@ -1,0 +1,332 @@
+<div class="min-h-screen bg-[#F9FAFB]">
+
+  <!-- ── Top Nav ──────────────────────────────────────────────────────────── -->
+  <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div class="flex items-center gap-3">
+      <button
+        (click)="goBack()"
+        class="flex items-center gap-1.5 text-sm text-[#374151] hover:text-[#1F2937] transition-colors mr-2"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      </div>
+      <span class="text-lg font-bold text-[#1F2937]">EventGuard</span>
+      <span class="text-[#E5E7EB]/70 mx-1">|</span>
+      <span class="text-sm font-medium text-[#374151]">Subscription Risk Review</span>
+    </div>
+  </header>
+
+  <main class="px-6 py-8 max-w-screen-lg mx-auto">
+
+    <!-- Loading -->
+    @if (isLoading()) {
+      <div class="bg-white rounded-xl shadow-md p-16 flex items-center justify-center">
+        <svg class="w-6 h-6 text-indigo-500 animate-spin mr-3" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <span class="text-[#374151] text-sm">Loading subscription...</span>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!isLoading() && errorMessage()) {
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm flex items-center gap-2">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (!isLoading() && sub()) {
+
+      <!-- Page title row -->
+      <div class="flex items-start justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 class="text-2xl font-bold text-[#1F2937]">
+            Subscription #{{ sub().subscriptionId }}
+          </h1>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold {{ statusBadgeClass(sub().status) }}">
+          {{ sub().status }}
+        </span>
+      </div>
+
+      <!-- Feedback banners -->
+      @if (successMessage()) {
+        <div class="bg-green-50 border border-green-200 text-green-700 rounded-xl px-5 py-3 text-sm mb-5 flex items-center gap-2">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+          {{ successMessage() }}
+        </div>
+      }
+      @if (actionError()) {
+        <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-3 text-sm mb-5">
+          {{ actionError() }}
+        </div>
+      }
+
+      <div class="flex flex-col gap-6">
+
+        <!-- ── SECTION 1: Event Information ─────────────────────────────── -->
+        <div class="bg-white shadow-md rounded-xl p-6">
+          <h2 class="text-base font-semibold text-[#1F2937] mb-5 flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Event Information
+          </h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Event Name</p>
+              <p class="text-sm font-semibold text-[#1F2937]">{{ sub().eventName }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Location</p>
+              <p class="text-sm font-medium text-[#1F2937]">{{ sub().location }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Event Date</p>
+              <p class="text-sm font-medium text-[#1F2937]">{{ sub().eventDate | date:'dd MMM yyyy' }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Event Type</p>
+              <p class="text-sm font-medium text-[#1F2937]">{{ sub().eventType }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Attendees</p>
+              <p class="text-sm font-medium text-[#1F2937]">{{ sub().attendees | number }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Budget</p>
+              <p class="text-sm font-semibold text-[#1F2937]">{{ sub().budget | currency:'INR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Customer</p>
+              <p class="text-sm font-medium text-[#1F2937]">{{ sub().customerName }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SECTION 2: Policy Information ────────────────────────────── -->
+        <div class="bg-white shadow-md rounded-xl p-6">
+          <h2 class="text-base font-semibold text-[#1F2937] mb-5 flex items-center gap-2">
+            <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Policy Information
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Policy Name</p>
+              <p class="text-sm font-semibold text-[#1F2937]">{{ sub().policyName }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Max Coverage</p>
+              <p class="text-sm font-semibold text-[#1F2937]">{{ (sub().maxCoverageAmount ?? sub().policy?.maxCoverageAmount ?? sub().policy?.maxCoverage ?? 0) | currency:'INR':'symbol':'1.0-0' }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Base Rate</p>
+              <p class="text-sm font-medium text-[#1F2937]">{{ (sub().baseRate ?? sub().policy?.baseRate ?? 0) }}%</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Total Risk Factor</p>
+              <p class="text-sm font-medium text-orange-600">+{{ (sub().totalRisk ?? sub().riskPercentage ?? 0) }}%</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-indigo-400 uppercase tracking-wide mb-1">Combined Rate</p>
+              <p class="text-sm font-bold text-indigo-700">{{ ((sub().baseRate ?? sub().policy?.baseRate ?? 0) + (sub().totalRisk ?? sub().riskPercentage ?? 0)) | number:'1.1-2' }}%</p>
+            </div>
+            <div class="sm:col-span-3">
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Description</p>
+              <p class="text-sm text-[#1F2937]">{{ sub().policyDescription }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1">Final Premium Amount</p>
+              <p class="text-lg font-bold text-[#1F2937]">{{ sub().premiumAmount | currency:'INR':'symbol':'1.0-0' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SECTION 3: Risk Breakdown ─────────────────────────────────── -->
+        <div class="bg-white shadow-md rounded-xl p-6">
+          <h2 class="text-base font-semibold text-[#1F2937] mb-5 flex items-center gap-2">
+            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            Risk Breakdown
+          </h2>
+
+          <div class="flex flex-col divide-y divide-[#8C1D40]/8">
+
+            <!-- Event Risk -->
+            <div class="flex items-center justify-between py-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-orange-400 shrink-0"></span>
+                <span class="text-sm font-semibold text-[#1F2937]">Event Risk</span>
+              </div>
+              <span class="text-sm font-bold text-[#1F2937]">{{ sub().eventRisk }}%</span>
+            </div>
+
+            <!-- Weather Risk -->
+            <div class="flex items-center justify-between py-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-sky-400 shrink-0"></span>
+                <span class="text-sm font-semibold text-[#1F2937]">Weather Risk</span>
+              </div>
+              <span class="text-sm font-bold text-[#1F2937]">{{ sub().weatherRisk }}%</span>
+            </div>
+
+            <!-- Total Risk -->
+            <div class="flex items-center justify-between pt-4 pb-1">
+              <span class="text-sm font-bold text-slate-900">Total Risk</span>
+              <div class="flex items-center gap-2">
+                <span class="text-base font-extrabold text-slate-900">{{ sub().totalRisk }}%</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ riskBadgeClass(sub().totalRisk) }}">
+                  {{ sub().riskLevel }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SECTION 4: Weather Conditions ──────────────────────────────── -->
+        @if (sub().temperature != null) {
+          <div class="bg-white shadow-md rounded-xl p-6">
+            <h2 class="text-base font-semibold text-[#1F2937] mb-5 flex items-center gap-2">
+              <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+              </svg>
+              Weather Conditions
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+
+              <!-- Temperature -->
+              <div class="flex flex-col items-center gap-2 bg-sky-50 border border-sky-100 rounded-xl p-4">
+                <svg class="w-7 h-7 text-sky-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9V3m0 0a1 1 0 011 1v6.586l1.707 1.707A1 1 0 0115 13.414V17a3 3 0 11-6 0v-3.586a1 1 0 01.293-.707L11 11V4a1 1 0 011-1z"/>
+                </svg>
+                <p class="text-xs text-sky-600 font-medium">Temperature</p>
+                <p class="text-base font-bold text-[#1F2937]">{{ sub().temperature }}°C</p>
+              </div>
+
+              <!-- Wind Speed -->
+              <div class="flex flex-col items-center gap-2 bg-teal-50 border border-teal-100 rounded-xl p-4">
+                <svg class="w-7 h-7 text-teal-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343M9 9l6 6M9 9a3 3 0 115-2.683"/>
+                </svg>
+                <p class="text-xs text-teal-600 font-medium">Wind Speed</p>
+                <p class="text-base font-bold text-[#1F2937]">{{ sub().windSpeed }} km/h</p>
+              </div>
+
+              <!-- Humidity -->
+              <div class="flex flex-col items-center gap-2 bg-[#F3F4F6] border border-blue-100 rounded-xl p-4">
+                <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C8 8 6 11 6 14a6 6 0 0012 0c0-3-2-6-6-12z"/>
+                </svg>
+                <p class="text-xs text-[#8C1D40] font-medium">Humidity</p>
+                <p class="text-base font-bold text-[#1F2937]">{{ sub().humidity }}%</p>
+              </div>
+
+              <!-- Condition -->
+              <div class="flex flex-col items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <svg class="w-7 h-7 text-[#374151]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+                </svg>
+                <p class="text-xs text-[#374151] font-medium">Condition</p>
+                <p class="text-sm font-bold text-[#1F2937] text-center">{{ sub().weatherCondition ?? '—' }}</p>
+              </div>
+
+            </div>
+          </div>
+        }
+
+        <!-- ── SECTION 5: Decision Panel ──────────────────────────────────── -->
+        <div class="bg-white shadow-md rounded-xl p-6">
+          <h2 class="text-base font-semibold text-[#1F2937] mb-2 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#374151]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            Decision
+          </h2>
+          <p class="text-sm text-[#374151] mb-6">
+            Review the risk analysis above, then approve or reject this subscription.
+          </p>
+
+          @if (!isPending()) {
+            <div class="flex items-center gap-2 text-sm font-medium
+              {{ sub().status?.toUpperCase() === 'APPROVED' ? 'text-green-700' : 'text-red-700' }}">
+              @if (sub().status?.toUpperCase() === 'APPROVED') {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              }
+              This subscription has been <span class="font-bold ml-1">{{ sub().status | uppercase }}</span>.
+            </div>
+          }
+
+          @if (isPending()) {
+            <div class="flex items-center gap-4 flex-wrap">
+              <!-- Approve -->
+              <button
+                (click)="approve()"
+                [disabled]="processingAction() !== null"
+                class="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold
+                       transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                @if (processingAction() === 'approve') {
+                  <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                  Approving...
+                } @else {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  Approve
+                }
+              </button>
+
+              <!-- Reject -->
+              <button
+                (click)="reject()"
+                [disabled]="processingAction() !== null"
+                class="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold
+                       transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                @if (processingAction() === 'reject') {
+                  <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                  </svg>
+                  Rejecting...
+                } @else {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  Reject
+                }
+              </button>
+            </div>
+          }
+        </div>
+
+      </div>
+    }<!-- end @if sub() -->
+
+  </main>
+</div>

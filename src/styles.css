@@ -1,0 +1,106 @@
+/* Font is loaded via index.html <link> tags for SSR compatibility */
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Hartford palette (remapped from burgundy slots) ── */
+  --color-burg-950: #111827;   /* near-black, replaces darkest bg */
+  --color-burg-900: #1F2937;   /* Hartford darkText */
+  --color-burg-800: #374151;   /* dark gray, replaces mid-dark */
+  --color-burg-700: #6E1733;   /* Hartford primaryHover */
+  --color-burg-600: #8C1D40;   /* Hartford primary */
+  --color-burg-500: #a32249;   /* Hartford primary tint (mid) */
+  --color-burg-400: #8C1D40;   /* Hartford primary (replaces pink accent) */
+  --color-burg-300: #b85572;   /* lighter primary tint */
+  --color-burg-200: #E5E7EB;   /* Hartford border (replaces light pink) */
+  --color-burg-100: #F3F4F6;   /* Hartford light (replaces pale pink) */
+  --color-burg-50:  #F9FAFB;   /* very light gray */
+
+  /* ── Hartford accent blue (replaces gold) ── */
+  --color-gold-400: #1D4ED8;   /* Hartford accentBlue */
+  --color-gold-300: #3B82F6;   /* lighter blue */
+
+  /* ── Neutral ── */
+  --color-warm-50:  #F9FAFB;
+  --color-warm-100: #F3F4F6;
+
+  /* ── Hartford specific utilities ── */
+  --color-hartford-primary: #8C1D40;
+  --color-hartford-border: #E5E7EB;
+  --color-hartford-light: #F3F4F6;
+}
+
+/* ── Base ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 17px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: #1F2937;
+  color: #1F2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Dark section text override ── */
+.dark-bg {
+  color: #F3F4F6;
+}
+
+/* ── Form fields always dark-readable ── */
+input,
+select,
+textarea {
+  color: #1F2937;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(31, 41, 55, 0.4);
+}
+
+/* ── White card surfaces ── */
+.bg-white {
+  color: #1F2937;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1F2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8C1D40;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a32249;
+}
+
+/* ── Focus rings ── */
+*:focus-visible {
+  outline: 2px solid #8C1D40;
+  outline-offset: 2px;
+}
+
+/* ── Text selection ── */
+::selection {
+  background: #8C1D40;
+  color: white;
+}
