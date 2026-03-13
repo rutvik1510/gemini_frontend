@@ -68,6 +68,16 @@
                 <span class="text-sm font-medium">Metal Detectors</span>
               </div>
             </div>
+
+            @if (sub().safetyComplianceDocPath) {
+              <div class="mt-6 p-4 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span class="text-sm font-bold text-blue-900">Safety Proof: <span class="font-normal">{{ sub().safetyComplianceDocPath }}</span></span>
+                </div>
+                <button class="text-xs font-black text-blue-600 uppercase hover:underline">Verify PDF</button>
+              </div>
+            }
           </div>
         </div>
 
@@ -98,13 +108,24 @@
 
           <!-- Premium -->
           <div class="bg-[#1F2937] rounded-2xl shadow-xl p-6 text-white">
-            <p class="text-xs text-white/60 uppercase font-bold mb-1">Calculated Premium</p>
-            <h3 class="text-3xl font-black mb-6">₹{{ sub().premiumAmount | number }}</h3>
+            <p class="text-xs text-white/60 uppercase font-bold mb-1">
+              {{ sub().premiumOverrideAmount ? 'Final Adjusted Premium' : 'Calculated Premium' }}
+            </p>
+            <h3 class="text-3xl font-black mb-2">₹{{ sub().premiumAmount | number }}</h3>
+            
+            @if (sub().premiumOverrideAmount) {
+              <div class="mb-6 p-3 rounded-lg bg-white/5 border border-white/10">
+                <p class="text-[9px] text-white/40 uppercase font-black mb-1">Underwriter Adjustment</p>
+                <p class="text-xs font-medium italic text-blue-300">"{{ sub().overrideReason }}"</p>
+              </div>
+            } @else {
+              <div class="mb-6"></div>
+            }
             
             @if (sub().status === 'PENDING') {
               <div class="space-y-3">
                 <button (click)="approve()" [disabled]="processingAction()" 
-                  class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-xl font-bold transition-all disabled:opacity-50">
+                  class="w-full py-3 bg-green-600 hover:bg-green-700 rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg shadow-green-900/20">
                   Approve Policy
                 </button>
                 <button (click)="reject()" [disabled]="processingAction()" 

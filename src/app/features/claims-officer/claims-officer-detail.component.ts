@@ -7,6 +7,8 @@ export interface ClaimDetail {
   claimId: number;
   customerName?: string;
   claimAmount: number;
+  approvedAmount?: number;
+  evidenceDocPath?: string;
   description?: string;
   filedAt: string;
   status: string;
@@ -88,15 +90,18 @@ export class ClaimsOfficerDetailComponent {
     switch (status?.toUpperCase()) {
       case 'APPROVED': return 'bg-green-100 text-green-700';
       case 'REJECTED': return 'bg-red-100 text-red-700';
+      case 'COLLECTED': return 'bg-blue-100 text-blue-700';
       default:         return 'bg-yellow-100 text-yellow-700';
     }
   }
 
   approve(): void {
+    if (!confirm('Approve this claim for the full requested amount?')) return;
+    
     this.processingAction.set('approve');
     this.actionError.set(null);
     this.successMessage.set(null);
-    this.service.approveClaim(this.claimId).subscribe({
+    this.service.approveClaim(this.claimId, {}).subscribe({
       next: () => {
         this.processingAction.set(null);
         this.successMessage.set('Claim approved successfully.');
@@ -110,6 +115,8 @@ export class ClaimsOfficerDetailComponent {
   }
 
   reject(): void {
+    if (!confirm('Are you sure you want to reject this claim?')) return;
+    
     this.processingAction.set('reject');
     this.actionError.set(null);
     this.successMessage.set(null);

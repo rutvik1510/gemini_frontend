@@ -10,8 +10,8 @@ export class SubscriptionDetailsService {
     return this.http.get(`http://localhost:8080/underwriter/subscriptions/${id}`);
   }
 
-  approveSubscription(id: number): Observable<any> {
-    return this.http.put(`http://localhost:8080/underwriter/subscriptions/${id}/approve`, {});
+  approveSubscription(id: number, payload: any): Observable<any> {
+    return this.http.put(`http://localhost:8080/underwriter/subscriptions/${id}/approve`, payload);
   }
 
   rejectSubscription(id: number, reason?: string): Observable<any> {

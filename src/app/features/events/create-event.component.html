@@ -115,6 +115,13 @@
             <span class="text-sm text-[#1F2937]">On-site Fire Marshals</span>
           </label>
         </div>
+
+        <div class="mt-4">
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Safety Compliance Proof (PDF)</label>
+          <input type="file" (change)="onSafetyFileSelected($event)" accept="application/pdf"
+            class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-[#8C1D40]/10 file:text-[#8C1D40] hover:file:bg-[#8C1D40]/20" />
+          <input type="hidden" formControlName="safetyComplianceDocPath" />
+        </div>
       </div>
 
       <!-- ===== SECTION: MUSIC CONCERT SPECIFIC ===== -->

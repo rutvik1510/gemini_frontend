@@ -18,6 +18,14 @@
       <p class="text-sm text-[#374151] mt-1">All policies you have subscribed to across your events.</p>
     </div>
 
+    <!-- Success message -->
+    @if (successMessage()) {
+      <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-bold rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-500 shadow-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        {{ successMessage() }}
+      </div>
+    }
+
     <!-- Error -->
     @if (errorMessage()) {
       <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-6">
@@ -144,32 +152,50 @@
 
               <!-- APPROVED — premium not yet paid -->
               @if (sub.status?.toUpperCase() === 'APPROVED') {
-                <div class="flex items-center justify-between w-full p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <div class="flex flex-col">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Premium Due</p>
-                    <p class="text-lg font-black text-[#1F2937]">{{ sub.premiumAmount | currency:'INR' }}</p>
+                @if (isConfirming() === sub.subscriptionId) {
+                  <!-- Inline Confirmation UI -->
+                  <div class="w-full p-5 bg-blue-50 rounded-2xl border border-blue-200 animate-in fade-in zoom-in duration-300">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                      <div>
+                        <p class="text-sm font-black text-blue-900 uppercase">Confirm Secure Payment</p>
+                        <p class="text-xs text-blue-700 font-medium">Authorize transfer of {{ sub.premiumAmount | currency:'INR' }}?</p>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <button (click)="payPremium(sub.subscriptionId)" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95">
+                          Confirm & Pay
+                        </button>
+                        <button (click)="cancelConfirm()" class="text-xs font-black text-slate-400 uppercase hover:text-slate-600">Cancel</button>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <button
-                    type="button"
-                    (click)="payPremium(sub.subscriptionId)"
-                    [disabled]="isPaying() === sub.subscriptionId"
-                    class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#8C1D40] text-white text-sm font-black transition-all active:scale-95 disabled:opacity-50 shadow-md"
-                  >
-                    @if (isPaying() === sub.subscriptionId) {
-                      <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-                      </svg>
-                      Verifying...
-                    } @else {
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                      </svg>
-                      Complete Payment
-                    }
-                  </button>
-                </div>
+                } @else {
+                  <div class="flex items-center justify-between w-full p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div class="flex flex-col">
+                      <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Premium Due</p>
+                      <p class="text-lg font-black text-[#1F2937]">{{ sub.premiumAmount | currency:'INR' }}</p>
+                    </div>
+                    
+                    <button
+                      type="button"
+                      (click)="showConfirm(sub.subscriptionId)"
+                      [disabled]="isPaying() === sub.subscriptionId"
+                      class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1F2937] hover:bg-[#8C1D40] text-white text-sm font-black transition-all active:scale-95 disabled:opacity-50 shadow-md"
+                    >
+                      @if (isPaying() === sub.subscriptionId) {
+                        <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                        </svg>
+                        Verifying...
+                      } @else {
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                          <path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Complete Payment
+                      }
+                    </button>
+                  </div>
+                }
               }
 
               <!-- PAID — premium paid -->

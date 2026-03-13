@@ -15,8 +15,8 @@ export class ClaimsOfficerService {
     return this.http.get(`${this.base}/${id}`);
   }
 
-  approveClaim(id: number): Observable<any> {
-    return this.http.put(`${this.base}/${id}/approve`, {});
+  approveClaim(id: number, payload: any): Observable<any> {
+    return this.http.put(`${this.base}/${id}/approve`, payload);
   }
 
   rejectClaim(id: number): Observable<any> {

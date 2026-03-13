@@ -88,9 +88,23 @@ export class SubscriptionDetailsComponent {
   }
 
   approve(): void {
-    if (!confirm('Confirm policy approval?')) return;
+    let overrideAmount: number | null = null;
+    let overrideReason: string | null = null;
+
+    if (confirm('Do you want to adjust the calculated premium before approving?')) {
+      const amtStr = prompt('Enter the final adjusted premium amount (₹):');
+      if (amtStr) {
+        overrideAmount = Number(amtStr);
+        overrideReason = prompt('Provide a brief reason for this adjustment:');
+      }
+    } else {
+      if (!confirm('Confirm policy approval at calculated rate?')) return;
+    }
+
     this.processingAction.set('approve');
-    this.service.approveSubscription(this.subscriptionId).subscribe({
+    const payload = overrideAmount ? { premiumOverrideAmount: overrideAmount, overrideReason } : {};
+
+    this.service.approveSubscription(this.subscriptionId, payload).subscribe({
       next: () => {
         this.successMessage.set('Subscription approved successfully.');
         this.load();

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ClaimsOfficerService } from './claims-officer.service';
 import { AuthService } from '../../core/auth.service';
+import { FormsModule } from '@angular/forms';
 
 export interface Claim {
   claimId: number;
@@ -10,6 +11,8 @@ export interface Claim {
   eventName: string;
   policyName?: string;
   claimAmount: number;
+  approvedAmount?: number;
+  evidenceDocPath?: string;
   riskLevel?: string;
   filedAt: string;
   status: string;
@@ -18,7 +21,7 @@ export interface Claim {
 @Component({
   selector: 'app-claims-officer-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './claims-officer-dashboard.component.html',
 })
 export class ClaimsOfficerDashboardComponent {
@@ -31,6 +34,10 @@ export class ClaimsOfficerDashboardComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
   readonly processingId = signal<number | null>(null);
+
+  // UI state for inline adjustments
+  readonly adjustingId = signal<number | null>(null);
+  customAmount: number = 0;
 
   constructor() {
     afterNextRender(() => this.loadClaims());
@@ -51,15 +58,41 @@ export class ClaimsOfficerDashboardComponent {
     });
   }
 
-  approve(id: number): void {
+  startAdjusting(claim: Claim): void {
+    this.adjustingId.set(claim.claimId);
+    this.customAmount = claim.claimAmount;
+  }
+
+  cancelAdjustment(): void {
+    this.adjustingId.set(null);
+  }
+
+  approveWithFullAmount(id: number): void {
+    this.executeApproval(id, null);
+  }
+
+  approveWithCustomAmount(id: number): void {
+    const amount = this.customAmount;
+    const claim = this.claims().find(c => c.claimId === id);
+    if (amount > (claim?.claimAmount ?? 0)) {
+      alert('Approved amount cannot exceed requested amount.');
+      return;
+    }
+    this.executeApproval(id, amount);
+  }
+
+  private executeApproval(id: number, amount: number | null): void {
     this.processingId.set(id);
     this.actionError.set(null);
-    this.service.approveClaim(id).subscribe({
+    const payload = amount ? { approvedAmount: amount } : {};
+
+    this.service.approveClaim(id, payload).subscribe({
       next: () => {
         this.processingId.set(null);
+        this.adjustingId.set(null);
         this.loadClaims();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.actionError.set(err?.error?.message ?? 'Failed to approve claim.');
         this.processingId.set(null);
       },
@@ -67,6 +100,7 @@ export class ClaimsOfficerDashboardComponent {
   }
 
   reject(id: number): void {
+    if (!confirm('Confirm claim rejection?')) return;
     this.processingId.set(id);
     this.actionError.set(null);
     this.service.rejectClaim(id).subscribe({
@@ -81,18 +115,12 @@ export class ClaimsOfficerDashboardComponent {
     });
   }
 
-  riskLevelClass(level: string | undefined): string {
-    switch (level?.toUpperCase()) {
-      case 'LOW':    return 'bg-green-100 text-green-700';
-      case 'MEDIUM': return 'bg-yellow-100 text-yellow-700';
-      default:       return 'bg-red-100 text-red-700';
-    }
-  }
-
   statusClass(status: string): string {
-    switch (status?.toUpperCase()) {
+    const s = status?.toUpperCase();
+    switch (s) {
       case 'APPROVED': return 'bg-green-100 text-green-700';
       case 'REJECTED': return 'bg-red-100 text-red-700';
+      case 'COLLECTED': return 'bg-blue-100 text-blue-700';
       default:         return 'bg-yellow-100 text-yellow-700';
     }
   }

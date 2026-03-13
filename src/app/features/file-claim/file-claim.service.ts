@@ -15,6 +15,7 @@ export class FileClaimService {
     description: string;
     claimAmount: number;
     incidentDate: string;
+    evidenceDocPath?: string;
   }): Observable<unknown> {
     return this.http.post('http://localhost:8080/claims', data);
   }

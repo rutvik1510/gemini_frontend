@@ -27,6 +27,7 @@ export class FileClaimComponent implements OnInit {
     incidentDate: ['', Validators.required],
     description: ['', [Validators.required, Validators.minLength(10)]],
     claimAmount: ['', [Validators.required, Validators.min(1)]],
+    evidenceDocPath: [''],
   });
 
   readonly isSubmitting = signal(false);
@@ -94,7 +95,7 @@ export class FileClaimComponent implements OnInit {
     this.successMessage.set(null);
     this.errorMessage.set(null);
 
-    const { description, claimAmount, incidentDate, subscriptionId } = this.form.getRawValue();
+    const { description, claimAmount, incidentDate, subscriptionId, evidenceDocPath } = this.form.getRawValue();
 
     // Send to backend for final validation and storage
     this.service.fileClaim({
@@ -102,6 +103,7 @@ export class FileClaimComponent implements OnInit {
       incidentDate,
       description,
       claimAmount: Number(claimAmount),
+      evidenceDocPath
     }).subscribe({
       next: () => {
         this.successMessage.set('Claim filed successfully! Redirecting...');
@@ -117,15 +119,14 @@ export class FileClaimComponent implements OnInit {
     });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      if (file.type === 'application/pdf') {
+  onEvidenceFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
         this.selectedFileName.set(file.name);
+        this.form.patchValue({ evidenceDocPath: file.name });
       } else {
-        alert('Please upload a PDF file.');
-        input.value = '';
+        alert('Please upload a PDF or Image file.');
         this.selectedFileName.set(null);
       }
     }

@@ -157,10 +157,11 @@
             <input 
               #fileInput 
               type="file" 
-              accept="application/pdf" 
+              accept="application/pdf,image/*" 
               class="hidden" 
-              (change)="onFileSelected($event)"
+              (change)="onEvidenceFileSelected($event)"
             />
+            <input type="hidden" formControlName="evidenceDocPath" />
             
             @if (selectedFileName()) {
               <div class="flex items-center gap-2 text-emerald-700">

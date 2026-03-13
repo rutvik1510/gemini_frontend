@@ -38,6 +38,7 @@ export class CreateEventComponent implements OnInit {
     hasMetalDetectors: [false],
     hasFireNOC: [false],
     hasOnSiteFireSafety: [false],
+    safetyComplianceDocPath: [''],
 
     // Music Concert specific
     isOutdoor: [false],
@@ -86,6 +87,14 @@ export class CreateEventComponent implements OnInit {
     return this.selectedType === 'CORPORATE_TECH_CONFERENCE';
   }
 
+  onSafetyFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // For this project, we just store the filename as a placeholder for the path
+      this.eventForm.patchValue({ safetyComplianceDocPath: file.name });
+    }
+  }
+
   onSubmit(): void {
     if (this.eventForm.invalid) {
       this.eventForm.markAllAsTouched();
@@ -110,6 +119,7 @@ export class CreateEventComponent implements OnInit {
       hasMetalDetectors: formValue.hasMetalDetectors,
       hasFireNOC: formValue.hasFireNOC,
       hasOnSiteFireSafety: formValue.hasOnSiteFireSafety,
+      safetyComplianceDocPath: formValue.safetyComplianceDocPath,
     };
 
     if (this.isMusicConcert) {

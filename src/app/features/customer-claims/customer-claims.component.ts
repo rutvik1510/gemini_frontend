@@ -8,6 +8,7 @@ export interface CustomerClaim {
   claimId: number;
   eventName: string;
   claimAmount: number;
+  approvedAmount?: number;
   filedAt: string;
   status: string;
 }
@@ -26,6 +27,9 @@ export class CustomerClaimsComponent {
   readonly claims = signal<CustomerClaim[]>([]);
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
+  readonly isCollecting = signal<number | null>(null);
+
   constructor() {
     afterNextRender(() => {
       this.loadClaims();
@@ -53,16 +57,20 @@ export class CustomerClaimsComponent {
   }
 
   receivePayment(claimId: number): void {
-    const confirmed = confirm('Confirm receiving claim payment?');
-    if (!confirmed) return;
+    this.isCollecting.set(claimId);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
     
     this.service.collectClaim(claimId).subscribe({
       next: () => {
+        this.successMessage.set('Payout successfully transferred to your account!');
+        this.isCollecting.set(null);
         this.loadClaims();
+        setTimeout(() => this.successMessage.set(null), 5000);
       },
       error: (err) => {
-        alert('Failed to collect payment. Please ensure the backend is running and the endpoint exists.');
-        console.error(err);
+        this.errorMessage.set(err?.error?.message ?? 'Failed to collect payout.');
+        this.isCollecting.set(null);
       }
     });
   }

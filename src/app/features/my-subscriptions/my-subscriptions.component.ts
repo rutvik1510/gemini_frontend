@@ -20,7 +20,9 @@ export class MySubscriptionsComponent implements OnInit {
   readonly subscriptions = signal<any[]>([]);
   readonly isLoading = signal(true);
   readonly isPaying = signal<number | null>(null);
+  readonly isConfirming = signal<number | null>(null);
   readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly claimedSubscriptionIds = signal<Set<number>>(new Set());
 
   ngOnInit(): void {
@@ -30,7 +32,6 @@ export class MySubscriptionsComponent implements OnInit {
   private loadData(): void {
     this.isLoading.set(true);
 
-    // Load subscriptions first, then match claims against them
     this.service.getMySubscriptions().pipe(
       catchError((err) => {
         console.error('Failed to load subscriptions:', err);
@@ -41,7 +42,6 @@ export class MySubscriptionsComponent implements OnInit {
         const subs = subRes.data ?? subRes;
         this.subscriptions.set(Array.isArray(subs) ? subs : []);
 
-        // Now load claims
         return this.claimsService.getClaims().pipe(
           catchError((err) => {
             console.warn('Could not load claims list:', err);
@@ -71,24 +71,33 @@ export class MySubscriptionsComponent implements OnInit {
     return this.claimedSubscriptionIds().has(Number(subscriptionId));
   }
 
+  showConfirm(id: number): void {
+    this.isConfirming.set(id);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+  }
+
+  cancelConfirm(): void {
+    this.isConfirming.set(null);
+  }
+
   payPremium(subscriptionId: number): void {
-    if (!confirm('Proceed to secure payment gateway?')) return;
-    
     this.isPaying.set(subscriptionId);
+    this.isConfirming.set(null);
     
     this.service.payPremium(subscriptionId).pipe(
       catchError(err => {
         console.error('Failed to pay premium:', err);
-        alert('Payment failed. Please check your balance and try again.');
+        this.errorMessage.set('Secure payment failed. Please try again.');
         this.isPaying.set(null);
         return of(null);
       })
     ).subscribe(res => {
       if (res) {
         this.isPaying.set(null);
-        // Using a smooth alert or toast would be better, but keep it simple for now
-        alert('✅ Payment Received! Your policy is now active.');
+        this.successMessage.set('Payment confirmed! Your policy is now active.');
         this.loadData(); 
+        setTimeout(() => this.successMessage.set(null), 5000);
       }
     });
   }
