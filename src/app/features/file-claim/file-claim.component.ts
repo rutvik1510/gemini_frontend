@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,10 +21,12 @@ export class FileClaimComponent implements OnInit {
   readonly paramId = this.route.snapshot.paramMap.get('subscriptionId');
   readonly availableSubscriptions = signal<any[]>([]);
   readonly selectedFileName = signal<string | null>(null);
+  private selectedFile: File | null = null;
 
   readonly form = this.fb.nonNullable.group({
     subscriptionId: [this.paramId ? Number(this.paramId) : '', [Validators.required, Validators.min(1)]],
     incidentDate: ['', Validators.required],
+    filedAt: [new Date().toISOString().substring(0, 16), Validators.required],
     description: ['', [Validators.required, Validators.minLength(10)]],
     claimAmount: ['', [Validators.required, Validators.min(1)]],
     evidenceDocPath: [''],
@@ -36,14 +38,12 @@ export class FileClaimComponent implements OnInit {
   readonly fileError = signal<string | null>(null);
 
   ngOnInit(): void {
-    // 100% Backend Driven: Fetch latest subscription states
     this.subService.getMySubscriptions().subscribe({
       next: (res: any) => {
         const subs = res.data ?? res;
         if (Array.isArray(subs)) {
           const validSubs = subs.filter(s => {
-            // Rule: Must be PAID and have NO existing claim according to the DB
-            return s.status?.toUpperCase() === 'PAID' && !s.hasClaim;
+            return s.status?.toUpperCase() === 'PAID' && !s.hasClaim && !s.isLocked;
           });
           this.availableSubscriptions.set(validSubs);
           
@@ -58,6 +58,23 @@ export class FileClaimComponent implements OnInit {
     this.form.controls.subscriptionId.valueChanges.subscribe(() => {
       this.updateClaimAmountValidator();
     });
+
+    // Auto-sync Filing Date if Incident Date is moved to the future
+    this.form.controls.incidentDate.valueChanges.subscribe((val) => {
+      if (val) {
+        const incDate = new Date(val);
+        const currentFiledAt = new Date(this.form.controls.filedAt.value);
+        
+        if (incDate > currentFiledAt) {
+          // Sync filing date to incident date (keeping it logical)
+          // We add 1 minute to ensure it's strictly not 'before'
+          const syncDate = new Date(incDate);
+          const now = new Date();
+          syncDate.setHours(now.getHours(), now.getMinutes());
+          this.form.patchValue({ filedAt: syncDate.toISOString().substring(0, 16) });
+        }
+      }
+    });
   }
 
   get selectedSubscription() {
@@ -68,40 +85,54 @@ export class FileClaimComponent implements OnInit {
 
   get maxCoverageAmt(): number {
     const sub = this.selectedSubscription;
-    return sub ? (sub.maxCoverageAmount ?? sub.policy?.maxCoverageAmount ?? 0) : 0;
+    return sub?.maxCoverageAmount ?? sub?.policy?.maxCoverageAmount ?? 0;
   }
 
   get eventDate(): string {
     const sub = this.selectedSubscription;
-    return sub ? (sub.event?.eventDate ?? sub.eventDate) : '';
+    return sub?.eventDate ?? sub?.event?.eventDate ?? '';
   }
 
   private updateClaimAmountValidator(): void {
-    const maxAmt = this.maxCoverageAmt;
-    if (maxAmt > 0) {
-      this.form.controls.claimAmount.setValidators([Validators.required, Validators.min(1), Validators.max(maxAmt)]);
-    } else {
-      this.form.controls.claimAmount.setValidators([Validators.required, Validators.min(1)]);
-    }
+    const max = this.maxCoverageAmt;
+    this.form.controls.claimAmount.setValidators([
+      Validators.required,
+      Validators.min(1),
+      Validators.max(max)
+    ]);
     this.form.controls.claimAmount.updateValueAndValidity();
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (this.form.invalid) return;
 
     this.isSubmitting.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
 
-    const { description, claimAmount, incidentDate, subscriptionId, evidenceDocPath } = this.form.getRawValue();
+    const { subscriptionId, incidentDate, filedAt, description, claimAmount } = this.form.getRawValue();
 
-    // Send to backend for final validation and storage
+    if (this.selectedFile) {
+      this.service.uploadFile(this.selectedFile).subscribe({
+        next: (fileRes: any) => {
+          const uploadedFileName = fileRes.data;
+          this.submitClaim(subscriptionId, incidentDate, filedAt, description, claimAmount, uploadedFileName);
+        },
+        error: (err) => {
+          this.errorMessage.set(err?.error?.message ?? 'Failed to upload evidence file.');
+          this.isSubmitting.set(false);
+        }
+      });
+    } else {
+      this.submitClaim(subscriptionId, incidentDate, filedAt, description, claimAmount, '');
+    }
+  }
+
+  private submitClaim(subscriptionId: any, incidentDate: any, filedAt: any, description: any, claimAmount: any, evidenceDocPath: string): void {
     this.service.fileClaim({
       subscriptionId: Number(subscriptionId),
       incidentDate,
+      filedAt,
       description,
       claimAmount: Number(claimAmount),
       evidenceDocPath
@@ -109,11 +140,9 @@ export class FileClaimComponent implements OnInit {
       next: () => {
         this.successMessage.set('Claim filed successfully! Redirecting...');
         this.isSubmitting.set(false);
-        // Refresh purely from backend after a small delay
         setTimeout(() => this.router.navigate(['/my-subscriptions']), 1500);
       },
       error: (err) => {
-        // Backend returned a validation error (e.g., policy not paid, duplicate claim)
         this.errorMessage.set(err?.error?.message ?? 'Failed to file claim. Please try again.');
         this.isSubmitting.set(false);
       },
@@ -126,10 +155,12 @@ export class FileClaimComponent implements OnInit {
     if (file) {
       if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
         this.selectedFileName.set(file.name);
+        this.selectedFile = file;
         this.form.patchValue({ evidenceDocPath: file.name });
       } else {
         this.fileError.set('Please upload a PDF or Image file.');
         this.selectedFileName.set(null);
+        this.selectedFile = null;
       }
     }
   }

@@ -11,6 +11,10 @@ export class ClaimsOfficerService {
     return this.http.get(this.base);
   }
 
+  getAllClaims(): Observable<any> {
+    return this.getClaims();
+  }
+
   getAssignedClaims(): Observable<any> {
     return this.http.get(`${this.base}/assigned`);
   }
@@ -19,11 +23,11 @@ export class ClaimsOfficerService {
     return this.http.get(`${this.base}/${id}`);
   }
 
-  approveClaim(id: number, payload: any): Observable<any> {
-    return this.http.put(`${this.base}/${id}/approve`, payload);
+  approveClaim(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.base}/${id}/approve`, data);
   }
 
-  rejectClaim(id: number): Observable<any> {
-    return this.http.put(`${this.base}/${id}/reject`, {});
+  rejectClaim(id: number, reason: string): Observable<any> {
+    return this.http.put(`${this.base}/${id}/reject`, { reason });
   }
 }

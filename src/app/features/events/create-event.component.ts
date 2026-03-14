@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EventService } from './event.service';
+import { FileClaimService } from '../file-claim/file-claim.service';
 
 @Component({
   selector: 'app-create-event',
@@ -12,12 +13,14 @@ import { EventService } from './event.service';
 export class CreateEventComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly eventService = inject(EventService);
+  private readonly fileService = inject(FileClaimService);
 
   readonly eventTypes = ['OUTDOOR_MUSIC_CONCERT', 'CORPORATE_TECH_CONFERENCE'];
 
   readonly successMessage = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
   readonly isSubmitting = signal(false);
+  private selectedFile: File | null = null;
 
   today = new Date().toISOString().split('T')[0];
 
@@ -90,7 +93,7 @@ export class CreateEventComponent implements OnInit {
   onSafetyFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      // For this project, we just store the filename as a placeholder for the path
+      this.selectedFile = file;
       this.eventForm.patchValue({ safetyComplianceDocPath: file.name });
     }
   }
@@ -101,11 +104,28 @@ export class CreateEventComponent implements OnInit {
       return;
     }
 
-    const formValue = this.eventForm.getRawValue();
     this.isSubmitting.set(true);
     this.successMessage.set(null);
     this.errorMessage.set(null);
 
+    if (this.selectedFile) {
+      this.fileService.uploadFile(this.selectedFile).subscribe({
+        next: (res: any) => {
+          this.executeEventCreation(res.data);
+        },
+        error: (err) => {
+          this.errorMessage.set(err?.error?.message ?? 'Failed to upload compliance document.');
+          this.isSubmitting.set(false);
+        }
+      });
+    } else {
+      this.executeEventCreation('');
+    }
+  }
+
+  private executeEventCreation(uploadedPath: string): void {
+    const formValue = this.eventForm.getRawValue();
+    
     // Use common payload for all factual data
     const commonPayload = {
       eventName: formValue.eventName,
@@ -119,7 +139,7 @@ export class CreateEventComponent implements OnInit {
       hasMetalDetectors: formValue.hasMetalDetectors,
       hasFireNOC: formValue.hasFireNOC,
       hasOnSiteFireSafety: formValue.hasOnSiteFireSafety,
-      safetyComplianceDocPath: formValue.safetyComplianceDocPath,
+      safetyComplianceDocPath: uploadedPath,
     };
 
     if (this.isMusicConcert) {
@@ -136,6 +156,7 @@ export class CreateEventComponent implements OnInit {
           this.successMessage.set('Event created successfully!');
           this.isSubmitting.set(false);
           this.eventForm.reset();
+          this.selectedFile = null;
         },
         error: (err) => {
           this.errorMessage.set(err?.error?.message ?? 'Failed to create event.');
@@ -155,6 +176,7 @@ export class CreateEventComponent implements OnInit {
           this.successMessage.set('Event created successfully!');
           this.isSubmitting.set(false);
           this.eventForm.reset();
+          this.selectedFile = null;
         },
         error: (err) => {
           this.errorMessage.set(err?.error?.message ?? 'Failed to create event.');

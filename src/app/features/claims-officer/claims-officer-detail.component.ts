@@ -1,35 +1,36 @@
-import { Component, inject, signal, afterNextRender } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClaimsOfficerService } from './claims-officer.service';
 
 export interface ClaimDetail {
   claimId: number;
+  subscriptionId?: number;
   customerName?: string;
+  customerPhone?: string;
+  eventName?: string;
+  eventType?: string;
+  eventDate?: string;
+  location?: string;
+  numberOfAttendees?: number;
+  budget?: number;
+  policyName?: string;
+  baseRate?: number;
+  maxCoverageAmount?: number;
+  premiumAmount?: number;
   claimAmount: number;
+  incidentDate?: string;
   approvedAmount?: number;
   evidenceDocPath?: string;
   description?: string;
   filedAt: string;
   status: string;
-  // Event
-  eventName?: string;
-  eventType?: string;
-  location?: string;
-  eventDate?: string;
-  numberOfAttendees?: number;
-  budget?: number;
-  // Policy
-  policyName?: string;
-  baseRate?: number;
-  premiumPaid?: number;
-  maxCoverageAmount?: number;
-  // Risk
+  rejectionReason?: string;
+  assignedOfficerName?: string;
   eventRisk?: number;
   weatherRisk?: number;
   totalRisk?: number;
   riskLevel?: string;
-  // Weather
   temperature?: number;
   humidity?: number;
   windSpeed?: number;
@@ -42,28 +43,27 @@ export interface ClaimDetail {
   imports: [CommonModule],
   templateUrl: './claims-officer-detail.component.html',
 })
-export class ClaimsOfficerDetailComponent {
+export class ClaimsOfficerDetailComponent implements OnInit {
   private readonly service = inject(ClaimsOfficerService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  readonly claimId = Number(this.route.snapshot.paramMap.get('id'));
   readonly claim = signal<ClaimDetail | null>(null);
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
-  readonly actionError = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
+  readonly actionError = signal<string | null>(null);
   readonly processingAction = signal<string | null>(null);
 
-  private claimId!: number;
+  readonly showRejectForm = signal(false);
+  readonly rejectionReason = signal('');
 
-  constructor() {
-    afterNextRender(() => {
-      this.claimId = Number(this.route.snapshot.paramMap.get('id'));
-      this.load();
-    });
+  ngOnInit(): void {
+    this.load();
   }
 
-  private load(): void {
+  load(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.service.getClaimDetails(this.claimId).subscribe({
@@ -76,6 +76,17 @@ export class ClaimsOfficerDetailComponent {
         this.isLoading.set(false);
       },
     });
+  }
+
+  toggleRejectForm(): void {
+    this.showRejectForm.update(v => !v);
+    this.rejectionReason.set('');
+    this.actionError.set(null);
+  }
+
+  onReasonInput(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    this.rejectionReason.set(target.value);
   }
 
   riskLevelClass(level: string | undefined): string {
@@ -96,8 +107,6 @@ export class ClaimsOfficerDetailComponent {
   }
 
   approve(): void {
-    if (!confirm('Approve this claim for the full requested amount?')) return;
-    
     this.processingAction.set('approve');
     this.actionError.set(null);
     this.successMessage.set(null);
@@ -115,14 +124,19 @@ export class ClaimsOfficerDetailComponent {
   }
 
   reject(): void {
-    if (!confirm('Are you sure you want to reject this claim?')) return;
-    
+    const reason = this.rejectionReason().trim();
+    if (!reason) {
+      this.actionError.set('Please provide a reason for rejection.');
+      return;
+    }
+
     this.processingAction.set('reject');
     this.actionError.set(null);
     this.successMessage.set(null);
-    this.service.rejectClaim(this.claimId).subscribe({
+    this.service.rejectClaim(this.claimId, reason).subscribe({
       next: () => {
         this.processingAction.set(null);
+        this.showRejectForm.set(false);
         this.successMessage.set('Claim rejected successfully.');
         this.load();
       },
@@ -135,5 +149,14 @@ export class ClaimsOfficerDetailComponent {
 
   goBack(): void {
     this.router.navigate(['/claims-dashboard']);
+  }
+
+  viewDocument(path: string | undefined): void {
+    if (!path) {
+      alert('No evidence document provided.');
+      return;
+    }
+    const url = path.startsWith('http') ? path : `http://localhost:8080/uploads/${path}`;
+    window.open(url, '_blank');
   }
 }

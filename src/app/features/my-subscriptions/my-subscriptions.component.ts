@@ -1,8 +1,7 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MySubscriptionsService } from './my-subscriptions.service';
-import { CustomerClaimsService } from '../customer-claims/customer-claims.service';
 
 @Component({
   selector: 'app-my-subscriptions',
@@ -12,17 +11,11 @@ import { CustomerClaimsService } from '../customer-claims/customer-claims.servic
 })
 export class MySubscriptionsComponent implements OnInit {
   private readonly service = inject(MySubscriptionsService);
-  private readonly claimsService = inject(CustomerClaimsService);
   private readonly router = inject(Router);
 
   readonly subscriptions = signal<any[]>([]);
-  readonly claims = signal<any[]>([]);
   readonly isLoading = signal(true);
   
-  readonly claimedSubscriptionIds = computed(() => {
-    return new Set<number>(this.claims().map((c: any) => Number(c.subscriptionId || c.subscription_id)));
-  });
-
   readonly isPaying = signal<number | null>(null);
   readonly isConfirming = signal<number | null>(null);
   readonly errorMessage = signal<string | null>(null);
@@ -34,24 +27,16 @@ export class MySubscriptionsComponent implements OnInit {
 
   private loadData(): void {
     this.isLoading.set(true);
-    this.service.getMySubscriptions().subscribe((subRes: any) => {
-      this.subscriptions.set(subRes.data ?? subRes ?? []);
-      this.claimsService.getClaims().subscribe((claimRes: any) => {
-        this.claims.set(claimRes.data ?? claimRes ?? []);
+    this.service.getMySubscriptions().subscribe({
+      next: (subRes: any) => {
+        this.subscriptions.set(subRes.data ?? subRes ?? []);
         this.isLoading.set(false);
-      });
+      },
+      error: () => {
+        this.errorMessage.set('Failed to load subscriptions.');
+        this.isLoading.set(false);
+      }
     });
-  }
-
-  hasClaim(subscriptionId: any): boolean {
-    return this.claimedSubscriptionIds().has(Number(subscriptionId));
-  }
-
-  isEventLocked(subscriptionId: any): boolean {
-    const claim = this.claims().find(c => Number(c.subscriptionId || c.subscription_id) === Number(subscriptionId));
-    if (!claim) return false;
-    const s = claim.status?.toUpperCase();
-    return s === 'COLLECTED' || s === 'PAID' || s === 'SETTLED' || s === 'CLOSED';
   }
 
   showConfirm(id: number): void {

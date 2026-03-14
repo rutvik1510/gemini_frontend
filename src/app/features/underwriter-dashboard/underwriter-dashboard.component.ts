@@ -105,8 +105,7 @@ export class UnderwriterDashboardComponent {
       alert('No document uploaded.');
       return;
     }
-    // Handle both absolute and relative paths
-    const url = path.startsWith('http') ? path : `http://localhost:8080${path.startsWith('/') ? '' : '/'}${path}`;
+    const url = path.startsWith('http') ? path : `http://localhost:8080/uploads/${path}`;
     window.open(url, '_blank');
   }
 

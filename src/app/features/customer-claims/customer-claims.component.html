@@ -107,6 +107,9 @@
                 <th class="text-left px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">
                   Event Name
                 </th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">
+                  Incident Date
+                </th>
                 <th class="text-right px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">
                   Claim Amount
                 </th>
@@ -136,6 +139,11 @@
                     <p class="font-medium text-[#1F2937]">{{ claim.eventName }}</p>
                   </td>
 
+                  <!-- Incident Date -->
+                  <td class="px-4 py-3">
+                    <p class="text-sm font-black text-red-600">{{ claim.incidentDate | date:'dd MMM yyyy' }}</p>
+                  </td>
+
                   <!-- Claim Amount -->
                   <td class="px-4 py-3 text-right">
                     @if (claim.status !== 'PENDING') {
@@ -160,6 +168,11 @@
                     <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold {{ statusClass(claim.status) }}">
                       {{ claim.status }}
                     </span>
+                    @if (claim.status.toUpperCase() === 'REJECTED' && claim.rejectionReason) {
+                      <p class="text-[10px] text-red-500 mt-1 italic max-w-[150px] leading-tight">
+                        "{{ claim.rejectionReason }}"
+                      </p>
+                    }
                   </td>
 
                   <td class="px-4 py-3 text-center">

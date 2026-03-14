@@ -8,6 +8,8 @@ export interface CustomerClaim {
   claimId: number;
   eventName: string;
   claimAmount: number;
+  incidentDate?: string;
+  rejectionReason?: string;
   approvedAmount?: number;
   filedAt: string;
   status: string;

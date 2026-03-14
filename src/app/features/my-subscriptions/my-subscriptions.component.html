@@ -124,10 +124,10 @@
             }
 
             <!-- CLAIM FILED BANNER -->
-            @if (hasClaim(sub.subscriptionId)) {
+            @if (sub.hasClaim) {
               <div class="mt-4 rounded-xl bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 px-4 py-3 flex items-center gap-3">
                 <div class="flex-shrink-0 w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center">
-                  @if (isEventLocked(sub.subscriptionId)) {
+                  @if (sub.isLocked) {
                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
                     </svg>
@@ -138,7 +138,7 @@
                   }
                 </div>
                 <div>
-                  @if (isEventLocked(sub.subscriptionId)) {
+                  @if (sub.isLocked) {
                     <p class="text-sm font-bold text-emerald-800">Claim Settled & Event Closed</p>
                     <p class="text-xs text-emerald-600 mt-0.5">Payment has been collected. Operations for this event are now finalized.</p>
                   } @else {
@@ -163,7 +163,7 @@
 
               <!-- APPROVED — premium not yet paid -->
               @if (sub.status?.toUpperCase() === 'APPROVED') {
-                @if (isEventLocked(sub.subscriptionId)) {
+                @if (sub.isLocked) {
                   <div class="flex items-center gap-2 p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                     <span class="text-xs font-bold uppercase tracking-tight">Payment Blocked: Event Closed</span>
@@ -225,7 +225,7 @@
                   </span>
                 </div>
 
-                @if (!hasClaim(sub.subscriptionId)) {
+                @if (!sub.hasClaim) {
                   <button
                     type="button"
                     (click)="fileClaim(sub.subscriptionId)"
@@ -237,7 +237,7 @@
                     File Claim
                   </button>
                 } @else {
-                  @if (isEventLocked(sub.subscriptionId)) {
+                  @if (sub.isLocked) {
                     <span class="text-xs text-emerald-700 font-bold uppercase tracking-widest italic flex items-center gap-1">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                       Event Locked
@@ -250,7 +250,10 @@
 
               <!-- REJECTED -->
               @if (sub.status?.toUpperCase() === 'REJECTED') {
-                <p class="text-sm text-red-500 font-medium italic">This subscription was rejected.</p>
+                <div class="w-full p-4 bg-red-50 border border-red-100 rounded-xl">
+                  <p class="text-xs text-red-700 font-bold uppercase tracking-wider mb-1">Subscription Rejected</p>
+                  <p class="text-sm text-red-600 italic">"{{ sub.rejectionReason || 'No specific reason provided' }}"</p>
+                </div>
                 <span></span>
               }
 

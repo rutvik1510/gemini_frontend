@@ -7,7 +7,7 @@ export class SubscriptionReviewService {
   private readonly http = inject(HttpClient);
   private readonly base = 'http://localhost:8080/underwriter/subscriptions';
 
-  getSubscription(id: number): Observable<any> {
+  getDetails(id: number): Observable<any> {
     return this.http.get(`${this.base}/${id}`);
   }
 
@@ -15,7 +15,7 @@ export class SubscriptionReviewService {
     return this.http.put(`${this.base}/${id}/approve`, {});
   }
 
-  reject(id: number): Observable<any> {
-    return this.http.put(`${this.base}/${id}/reject`, {});
+  reject(id: number, reason: string): Observable<any> {
+    return this.http.put(`${this.base}/${id}/reject`, { reason });
   }
 }

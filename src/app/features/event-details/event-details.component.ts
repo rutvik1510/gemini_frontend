@@ -44,6 +44,7 @@ export class EventDetailsComponent implements OnInit {
       next: (res: any) => {
         const eventData = res.data ?? res;
         this.event.set(eventData);
+        this.isEventLocked.set(!!eventData.isLocked);
         const domain = eventData.eventType ?? eventData.domain ?? '';
 
         // Load Subscriptions and Policies in parallel-ish
@@ -55,23 +56,16 @@ export class EventDetailsComponent implements OnInit {
           this.subscribedPolicyIds.set(ids);
 
           // Check for paid policy
-          const paidPolicy = eventSubs.find((s: any) => s.status?.toUpperCase() === 'PAID' || s.isPaid);
+          const paidPolicy = eventSubs.find((s: any) => 
+            s.status?.toUpperCase() === 'PAID' || 
+            s.isPaid
+          );
           this.hasPaidPolicy.set(!!paidPolicy);
 
           // If there's already a subscription, show the result section automatically
           if (eventSubs.length > 0) {
             this.quoteResult.set(eventSubs[0]);
           }
-
-          // Check for locked event (COLLECTED claim)
-          this.detailsService.getClaims().subscribe((claimRes: any) => {
-            const claims = claimRes.data ?? claimRes ?? [];
-            const isLocked = claims.some((c: any) => 
-              (Number(c.subscriptionId || c.subscription_id) === Number(eventSubs[0]?.subscriptionId)) && 
-              (c.status?.toUpperCase() === 'COLLECTED' || c.status?.toUpperCase() === 'PAID')
-            );
-            this.isEventLocked.set(isLocked);
-          });
         });
 
         this.detailsService.getPoliciesByDomain(domain).subscribe({

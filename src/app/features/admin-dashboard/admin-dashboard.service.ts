@@ -48,11 +48,13 @@ export interface AdminStats {
   totalPolicies: number;
   activePolicies: number;
   totalEvents: number;
+  totalUsers: number;
   pendingSubscriptions: number;
   pendingClaims: number;
+  successfulClaims: number;
+  settledClaims: number;
   totalRevenue: number;
   totalPayouts: number;
-  netProfit: number;
 }
 
 export interface AdminEvent {
@@ -91,6 +93,10 @@ export class AdminDashboardService {
 
   deletePolicy(policyId: number): Observable<ApiResponse<unknown>> {
     return this.http.delete<ApiResponse<unknown>>(`${this.base}/policies/${policyId}`);
+  }
+
+  activatePolicy(policyId: number): Observable<ApiResponse<unknown>> {
+    return this.http.patch<ApiResponse<unknown>>(`${this.base}/policies/${policyId}/activate`, {});
   }
 
   createUnderwriter(payload: CreateUserRequest): Observable<unknown> {

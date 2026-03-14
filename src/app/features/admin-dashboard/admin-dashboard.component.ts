@@ -172,7 +172,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  submitPolicy(): void {
+  submitCreatePolicy(): void {
     if (this.policyForm.invalid) return;
     this.service.createPolicy(this.policyForm.getRawValue()).subscribe({
       next: () => { this.successMessage.set('Policy created!'); this.loadPolicies(); },
@@ -222,9 +222,14 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  deletePolicy(id: number | undefined): void {
-    if (!id || !confirm('Deactivate?')) return;
+  deactivatePolicy(id: number | undefined): void {
+    if (!id || !confirm('Deactivate policy?')) return;
     this.service.deletePolicy(id).subscribe(() => this.loadPolicies());
+  }
+
+  activatePolicy(id: number | undefined): void {
+    if (!id) return;
+    this.service.activatePolicy(id).subscribe(() => this.loadPolicies());
   }
 
   assignUnderwriter(id: number, event: any): void {
@@ -237,7 +242,7 @@ export class AdminDashboardComponent implements OnInit {
     if (oid) this.service.assignClaimsOfficer(id, Number(oid)).subscribe(() => this.loadAllClaims());
   }
 
-  submitUnderwriter(): void {
+  submitCreateUnderwriter(): void {
     if (this.userForm.invalid) { this.userForm.markAllAsTouched(); return; }
     const val = this.userForm.getRawValue();
     this.service.createUnderwriter({ fullName: val.name, email: val.email, password: val.password, phone: val.phone }).subscribe({
@@ -246,7 +251,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  submitClaimsOfficer(): void {
+  submitCreateClaimsOfficer(): void {
     if (this.userForm.invalid) { this.userForm.markAllAsTouched(); return; }
     const val = this.userForm.getRawValue();
     this.service.createClaimsOfficer({ fullName: val.name, email: val.email, password: val.password, phone: val.phone }).subscribe({

@@ -21,6 +21,17 @@ export class RegisterComponent {
     phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
     companyName: ['', [Validators.required, Validators.minLength(2)]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required]],
+  }, {
+    validators: (control: import('@angular/forms').AbstractControl) => {
+      const password = control.get('password');
+      const confirmPassword = control.get('confirmPassword');
+      if (password && confirmPassword && password.value !== confirmPassword.value) {
+        confirmPassword.setErrors({ passwordMismatch: true });
+        return { passwordMismatch: true };
+      }
+      return null;
+    }
   });
 
   readonly errorMessage = signal<string | null>(null);
@@ -32,6 +43,7 @@ export class RegisterComponent {
   get phoneControl() { return this.form.controls.phone; }
   get companyNameControl() { return this.form.controls.companyName; }
   get passwordControl() { return this.form.controls.password; }
+  get confirmPasswordControl() { return this.form.controls.confirmPassword; }
 
   onSubmit(): void {
     if (this.form.invalid) {

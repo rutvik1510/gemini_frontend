@@ -213,7 +213,7 @@
         </div>
 
         <!-- ROW 1: SUCCESS METRICS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           
           <!-- Total Events -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
@@ -226,15 +226,26 @@
             <p class="text-2xl font-black text-[#1F2937]">{{ stats()?.totalEvents ?? 0 }}</p>
           </div>
 
-          <!-- Settled Claims -->
-          <div class="bg-[#1F2937] rounded-2xl shadow-xl p-6">
+          <!-- Successful Claims -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <div class="flex items-center gap-4 mb-2">
-              <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
               </div>
-              <span class="text-[10px] font-black text-white/50 uppercase tracking-widest">Settled Claims</span>
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Successful Claims</span>
             </div>
-            <p class="text-2xl font-black text-white">{{ stats()?.settledClaims ?? 0 }}</p>
+            <p class="text-2xl font-black text-[#1F2937]">{{ stats()?.successfulClaims ?? 0 }}</p>
+          </div>
+
+          <!-- Total Users -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center gap-4 mb-2">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+              </div>
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Users</span>
+            </div>
+            <p class="text-2xl font-black text-[#1F2937]">{{ stats()?.totalUsers ?? 0 }}</p>
           </div>
 
           <!-- Revenue -->
@@ -261,19 +272,8 @@
         </div>
 
         <!-- ROW 2: OPERATIONAL METRICS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           
-          <!-- Total Users -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
-              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-slate-500">Total Users</p>
-              <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ stats()?.totalUsers || 0 }}</h3>
-            </div>
-          </div>
-
           <!-- Active Policies -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
@@ -946,7 +946,7 @@
                           [ngClass]="event.eventType === 'OUTDOOR_MUSIC_CONCERT' 
                             ? 'bg-purple-50 text-purple-700' 
                             : 'bg-blue-50 text-blue-700'">
-                          {{ event.eventType?.replace('_', ' ') || '—' }}
+                          {{ event.eventType.replace('_', ' ') || '—' }}
                         </span>
                       </td>
                     </tr>
@@ -1098,6 +1098,7 @@
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">ID</th>
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Customer</th>
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Event</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Incident Date</th>
                     <th class="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Claim Amount (₹)</th>
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Assigned To</th>
                     <th class="text-center px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
@@ -1112,6 +1113,7 @@
                         <div class="text-slate-400 text-xs">{{ claim.customerEmail || claim.userEmail || '' }}</div>
                       </td>
                       <td class="px-5 py-4 text-slate-600 text-xs">{{ claim.eventName || '—' }}</td>
+                      <td class="px-5 py-4 text-slate-600 text-xs">{{ claim.incidentDate || '—' }}</td>
                       <td class="px-5 py-4 text-right text-slate-700 font-medium">{{ claim.claimAmount != null ? (claim.claimAmount | number:'1.2-2') : '—' }}</td>
                       <td class="px-5 py-4">
                         @if (claim.status === 'PENDING' && (!claim.assignedOfficerName || claim.assignedOfficerName === 'NOT ASSIGNED')) {
