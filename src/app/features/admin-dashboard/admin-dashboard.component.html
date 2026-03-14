@@ -168,6 +168,9 @@
           </div>
           <span class="text-sm font-medium text-slate-700">{{ adminEmail() }}</span>
         </div>
+        
+        <app-notification-dropdown />
+
         <button
           (click)="logout()"
           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
@@ -206,12 +209,34 @@
       @if (activeView() === 'dashboard') {
         <div class="mb-5">
           <h2 class="text-xl font-bold text-slate-800">Platform Overview</h2>
-          <p class="text-sm text-slate-500 mt-0.5">Key metrics and summary of system activity</p>
+          <p class="text-sm text-slate-500 mt-0.5">Key success metrics and real-time system performance</p>
         </div>
 
-        <!-- NEW Financial Row -->
+        <!-- ROW 1: SUCCESS METRICS -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           
+          <!-- Total Events -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center gap-4 mb-2">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              </div>
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Events</span>
+            </div>
+            <p class="text-2xl font-black text-[#1F2937]">{{ stats()?.totalEvents ?? 0 }}</p>
+          </div>
+
+          <!-- Settled Claims -->
+          <div class="bg-[#1F2937] rounded-2xl shadow-xl p-6">
+            <div class="flex items-center gap-4 mb-2">
+              <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <span class="text-[10px] font-black text-white/50 uppercase tracking-widest">Settled Claims</span>
+            </div>
+            <p class="text-2xl font-black text-white">{{ stats()?.settledClaims ?? 0 }}</p>
+          </div>
+
           <!-- Revenue -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <div class="flex items-center gap-4 mb-2">
@@ -233,79 +258,37 @@
             </div>
             <p class="text-2xl font-black text-[#1F2937]">₹{{ (stats()?.totalPayouts ?? 0) | number:'1.0-0' }}</p>
           </div>
-
-          <!-- Net Profit -->
-          <div class="bg-[#1F2937] rounded-2xl shadow-xl p-6">
-            <div class="flex items-center gap-4 mb-2">
-              <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-              </div>
-              <span class="text-[10px] font-black text-white/50 uppercase tracking-widest">Net Surplus</span>
-            </div>
-            <p class="text-2xl font-black text-white">₹{{ (stats()?.netProfit ?? 0) | number:'1.0-0' }}</p>
-          </div>
-
-          <!-- Pending Count -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div class="flex items-center gap-4 mb-2">
-              <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </div>
-              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Tasks</span>
-            </div>
-            <p class="text-2xl font-black text-[#1F2937]">
-              {{ (stats()?.pendingSubscriptions ?? 0) + (stats()?.pendingClaims ?? 0) }}
-            </p>
-          </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-8">
+        <!-- ROW 2: OPERATIONAL METRICS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           
-          <!-- Total Policies Card -->
+          <!-- Total Users -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
             </div>
             <div>
-              <p class="text-sm font-medium text-slate-500">Total Policies</p>
-              <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ stats()?.totalPolicies || 0 }}</h3>
+              <p class="text-sm font-medium text-slate-500">Total Users</p>
+              <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ stats()?.totalUsers || 0 }}</h3>
             </div>
           </div>
 
-          <!-- Active Policies Card -->
+          <!-- Active Policies -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
             </div>
             <div>
-              <p class="text-sm font-medium text-slate-500">Active Policies</p>
+              <p class="text-sm font-medium text-slate-500">Live Policies</p>
               <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ stats()?.activePolicies || 0 }}</h3>
             </div>
           </div>
 
-          <!-- Total Events Card -->
+          <!-- Pending Review -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-slate-500">Total Events</p>
-              <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ stats()?.totalEvents || 0 }}</h3>
-            </div>
-          </div>
-
-          <!-- Pending Subscriptions Card -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
-              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <div>
               <p class="text-sm font-medium text-slate-500">Pending Subs</p>
@@ -313,60 +296,32 @@
             </div>
           </div>
 
-          <!-- Pending Claims Card -->
+          <!-- Pending Claims -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center shrink-0 text-red-600">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
+            <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
             </div>
             <div>
-              <p class="text-sm font-medium text-slate-500">Pending Claims</p>
+              <p class="text-sm font-medium text-slate-500">Active Claims</p>
               <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ stats()?.pendingClaims || 0 }}</h3>
             </div>
           </div>
-
-          <!-- Total Claims (₹) Card -->
-          <div class="bg-slate-900 rounded-2xl shadow-sm p-6 flex items-start gap-4 text-white">
-            <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0 text-white">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-slate-400">Total Claims</p>
-              <h3 class="text-xl font-bold mt-1">₹{{ totalClaimsAmount() | number:'1.0-0' }}</h3>
-            </div>
-          </div>
-
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 class="font-bold text-slate-800 mb-4">Quick Insights</h3>
-            <div class="space-y-4">
-              <div class="flex items-center justify-between py-2 border-b border-slate-50">
-                <span class="text-sm text-slate-500">Active Policies</span>
-                <span class="font-bold text-green-600">{{ stats()?.activePolicies || 0 }}</span>
+        <div class="grid grid-cols-1 gap-6">
+          <div class="bg-gradient-to-r from-[#8C1D40] to-[#374151] rounded-3xl shadow-xl p-8 text-white overflow-hidden relative">
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <h3 class="font-black text-2xl mb-2">Welcome Back, Administrator</h3>
+                <p class="text-white/80 text-base font-medium max-w-2xl">The platform is currently monitoring {{ stats()?.totalEvents || 0 }} events with a user base of {{ stats()?.totalUsers || 0 }}. Use the sidebar to manage policies or assign staff members.</p>
               </div>
-              <div class="flex items-center justify-between py-2 border-b border-slate-50">
-                <span class="text-sm text-slate-500">Pending Subs</span>
-                <span class="font-bold text-orange-600">{{ stats()?.pendingSubscriptions || 0 }}</span>
-              </div>
-              <div class="flex items-center justify-between py-2">
-                <span class="text-sm text-slate-500">Pending Claims</span>
-                <span class="font-bold text-red-600">{{ stats()?.pendingClaims || 0 }}</span>
-              </div>
+              <button (click)="setView('policies')" class="shrink-0 bg-white text-[#8C1D40] px-8 py-3 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-slate-100 transition-all shadow-lg active:scale-95">
+                Manage Policy Catalog
+              </button>
             </div>
-          </div>
-          <div class="bg-[#8C1D40] rounded-xl shadow-sm p-6 text-white overflow-hidden relative">
-            <div class="relative z-10">
-              <h3 class="font-bold text-lg mb-2">Welcome Back!</h3>
-              <p class="text-white/80 text-sm leading-relaxed mb-4">You are monitoring the EventGuard platform as an administrator. Use the sidebar to manage policies or staff members.</p>
-              <button (click)="setView('policies')" class="bg-white text-[#8C1D40] px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors">Manage Policies</button>
-            </div>
-            <!-- Decorative circle -->
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-white/10"></div>
+            <!-- Decorative circles -->
+            <div class="absolute -right-10 -bottom-10 w-60 h-60 rounded-full bg-white/5"></div>
+            <div class="absolute right-20 top-0 w-20 h-20 rounded-full bg-white/5"></div>
           </div>
         </div>
       }
@@ -405,7 +360,7 @@
           >Inactive Policies</button>
         </div>
 
-        @if (isLoadingPolicies()) {
+        @if (isLoading()) {
           <div class="flex items-center justify-center py-20 text-slate-400">
             <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -443,29 +398,34 @@
                       <td class="px-5 py-4 text-slate-500 max-w-xs truncate">{{ policy.description }}</td>
                       <td class="px-5 py-4">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                          {{ policy.domain }}
+                          {{ policy.domain.replace('_', ' ') }}
                         </span>
                       </td>
                       <td class="px-5 py-4 text-right text-slate-700">{{ policy.baseRate | number:'1.2-2' }}%</td>
                       <td class="px-5 py-4 text-right text-slate-700">₹{{ policy.maxCoverageAmount | number }}</td>
                       <td class="px-5 py-4 text-center">
-                        @if (policy.isActive !== false) {
+                        @if (policy.isActive) {
                           <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">ACTIVE</span>
                         } @else {
                           <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">INACTIVE</span>
                         }
                       </td>
-                      <td class="px-5 py-4">
+                      <td class="px-5 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
-                          <button
-                            (click)="startEditPolicy(policy)"
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
-                          >Edit</button>
-                          @if (policy.isActive !== false) {
-                            <button
-                              (click)="deletePolicy(policy.policyId ?? policy.id)"
-                              class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
-                            >Deactivate</button>
+                          <button (click)="startEditPolicy(policy)"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors">
+                            Edit
+                          </button>
+                          @if (policy.isActive) {
+                            <button (click)="deactivatePolicy(policy.policyId ?? policy.id ?? 0)"
+                              class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors">
+                              Deactivate
+                            </button>
+                          } @else {
+                            <button (click)="activatePolicy(policy.policyId ?? policy.id ?? 0)"
+                              class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors">
+                              Activate
+                            </button>
                           }
                         </div>
                       </td>
@@ -498,8 +458,7 @@
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <form [formGroup]="policyForm" (ngSubmit)="submitEditPolicy()" novalidate class="space-y-4">
-
+            <form [formGroup]="policyForm" (ngSubmit)="submitEditPolicy()" class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Policy Name</label>
                 <input formControlName="policyName" type="text"
@@ -540,15 +499,7 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-1.5">Deductible (₹)</label>
-                  <input formControlName="deductible" type="number" min="0"
-                    class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" formControlName="coversTheft" class="rounded text-blue-600">
                   <span class="text-xs font-bold text-slate-600 uppercase">Theft</span>
@@ -567,17 +518,17 @@
                 </label>
               </div>
 
-              <div class="flex gap-3 mt-2">
+              <div class="flex gap-3 pt-4 border-t border-slate-100">
                 <button type="submit"
                   class="flex-1 py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors shadow-sm">
-                  Update Policy
+                  Save Changes
                 </button>
-                <button type="button" (click)="setView('policies')"
+                <button type="button"
+                  (click)="setView('policies')"
                   class="px-4 py-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-sm transition-colors">
                   Cancel
                 </button>
               </div>
-
             </form>
           </div>
         </div>
@@ -592,11 +543,10 @@
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <form [formGroup]="policyForm" (ngSubmit)="submitPolicy()" novalidate class="space-y-4">
-
+            <form [formGroup]="policyForm" (ngSubmit)="submitCreatePolicy()" class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Policy Name</label>
-                <input formControlName="policyName" type="text" placeholder="e.g. Gold Event Cover"
+                <input formControlName="policyName" type="text" placeholder="e.g. Bronze Guard"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (policyForm.controls.policyName.invalid && policyForm.controls.policyName.touched) {
                   <p class="mt-1 text-xs text-red-500">Policy name is required.</p>
@@ -605,7 +555,7 @@
 
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
-                <textarea formControlName="description" rows="3" placeholder="Brief description of the policy…"
+                <textarea formControlName="description" rows="3" placeholder="Explain what this policy covers..."
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"></textarea>
                 @if (policyForm.controls.description.invalid && policyForm.controls.description.touched) {
                   <p class="mt-1 text-xs text-red-500">Description is required.</p>
@@ -614,7 +564,7 @@
 
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Domain</label>
-                <input formControlName="domain" type="text" placeholder="e.g. WEDDING, CONCERT, SPORTS"
+                <input formControlName="domain" type="text" placeholder="e.g. OUTDOOR_MUSIC_CONCERT"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (policyForm.controls.domain.invalid && policyForm.controls.domain.touched) {
                   <p class="mt-1 text-xs text-red-500">Domain is required.</p>
@@ -637,15 +587,7 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-1.5">Deductible (₹)</label>
-                  <input formControlName="deductible" type="number" min="0" placeholder="e.g. 1000"
-                    class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" formControlName="coversTheft" class="rounded text-blue-600">
                   <span class="text-xs font-bold text-slate-600 uppercase tracking-tight">Theft Cover</span>
@@ -668,7 +610,64 @@
                 class="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors shadow-sm mt-2">
                 Create Policy
               </button>
+            </form>
+          </div>
+        </div>
+      }
 
+      <!-- ===== EDIT USER VIEW (Shared for Underwriter and Claims Officer) ===== -->
+      @if (activeView() === 'edit-underwriter' || activeView() === 'edit-claims-officer') {
+        <div class="max-w-md">
+          <div class="mb-5 flex items-center gap-3">
+            <button
+              (click)="setView(activeView() === 'edit-underwriter' ? 'view-underwriters' : 'view-claims-officers')"
+              class="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">Edit {{ activeView() === 'edit-underwriter' ? 'Underwriter' : 'Claims Officer' }}</h2>
+              <p class="text-sm text-slate-500 mt-0.5">Update staff profile</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <form [formGroup]="userForm" (ngSubmit)="submitEditUser()" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
+                <input formControlName="name" type="text"
+                  class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Email (Read Only)</label>
+                <input formControlName="email" type="email" readonly
+                  class="w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">New Password (Leave blank to keep current)</label>
+                <input formControlName="password" type="password"
+                  class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Mobile Number</label>
+                <input formControlName="phone" type="text"
+                  class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+              </div>
+
+              <div class="flex gap-3 pt-4 border-t border-slate-100">
+                <button type="submit"
+                  class="flex-1 py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors shadow-sm">
+                  Update Profile
+                </button>
+                <button type="button"
+                  (click)="setView(activeView() === 'edit-underwriter' ? 'view-underwriters' : 'view-claims-officers')"
+                  class="px-4 py-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium text-sm transition-colors">
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -683,10 +682,10 @@
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <form [formGroup]="userForm" (ngSubmit)="submitUnderwriter()" novalidate class="space-y-4">
+            <form [formGroup]="userForm" (ngSubmit)="submitCreateUnderwriter()" class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
-                <input formControlName="name" type="text" placeholder="Full name"
+                <input formControlName="name" type="text" placeholder="e.g. John Doe"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (userForm.controls.name.invalid && userForm.controls.name.touched) {
                   <p class="mt-1 text-xs text-red-500">Name is required.</p>
@@ -694,7 +693,7 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-                <input formControlName="email" type="email" placeholder="user@example.com"
+                <input formControlName="email" type="email" placeholder="e.g. john@eventguard.com"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (userForm.controls.email.invalid && userForm.controls.email.touched) {
                   <p class="mt-1 text-xs text-red-500">Enter a valid email.</p>
@@ -702,7 +701,7 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-                <input formControlName="password" type="password" placeholder="Min. 6 characters"
+                <input formControlName="password" type="password" placeholder="Min 6 characters"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (userForm.controls.password.invalid && userForm.controls.password.touched) {
                   <p class="mt-1 text-xs text-red-500">Password must be at least 6 characters.</p>
@@ -716,6 +715,7 @@
                   <p class="mt-1 text-xs text-red-500">Enter a valid mobile number (10-15 digits).</p>
                 }
               </div>
+
               <button type="submit"
                 class="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors shadow-sm mt-2">
                 Create Underwriter
@@ -734,10 +734,10 @@
           </div>
 
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <form [formGroup]="userForm" (ngSubmit)="submitClaimsOfficer()" novalidate class="space-y-4">
+            <form [formGroup]="userForm" (ngSubmit)="submitCreateClaimsOfficer()" class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
-                <input formControlName="name" type="text" placeholder="Full name"
+                <input formControlName="name" type="text" placeholder="e.g. Jane Smith"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (userForm.controls.name.invalid && userForm.controls.name.touched) {
                   <p class="mt-1 text-xs text-red-500">Name is required.</p>
@@ -745,7 +745,7 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-                <input formControlName="email" type="email" placeholder="user@example.com"
+                <input formControlName="email" type="email" placeholder="e.g. jane@eventguard.com"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (userForm.controls.email.invalid && userForm.controls.email.touched) {
                   <p class="mt-1 text-xs text-red-500">Enter a valid email.</p>
@@ -753,7 +753,7 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-                <input formControlName="password" type="password" placeholder="Min. 6 characters"
+                <input formControlName="password" type="password" placeholder="Min 6 characters"
                   class="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
                 @if (userForm.controls.password.invalid && userForm.controls.password.touched) {
                   <p class="mt-1 text-xs text-red-500">Password must be at least 6 characters.</p>
@@ -767,6 +767,7 @@
                   <p class="mt-1 text-xs text-red-500">Enter a valid mobile number (10-15 digits).</p>
                 }
               </div>
+
               <button type="submit"
                 class="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors shadow-sm mt-2">
                 Create Claims Officer
@@ -783,7 +784,7 @@
           <p class="text-sm text-slate-500 mt-0.5">Staff members authorized to review and approve policies</p>
         </div>
 
-        @if (isLoadingUsers()) {
+        @if (isLoading()) {
           <div class="flex items-center justify-center py-20 text-slate-400">
             <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -793,7 +794,7 @@
           </div>
         } @else if (underwriters().length === 0) {
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-20 text-center text-slate-400">
-            <p class="text-sm">No underwriters found in the system.</p>
+            No underwriters found.
           </div>
         } @else {
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -805,20 +806,24 @@
                   <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Email</th>
                   <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Mobile</th>
                   <th class="text-center px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                  <th class="text-center px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 @for (u of underwriters(); track u.userId) {
                   <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-5 py-4 font-mono text-xs">#{{ u.userId }}</td>
+                    <td class="px-5 py-4 font-mono text-xs text-slate-400">#{{ u.userId }}</td>
                     <td class="px-5 py-4 font-medium text-slate-800">{{ u.fullName }}</td>
                     <td class="px-5 py-4 text-slate-500">{{ u.email }}</td>
                     <td class="px-5 py-4 text-slate-500 font-mono text-xs">{{ u.phone || '—' }}</td>
                     <td class="px-5 py-4 text-center">
-                      <span class="inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase transition-colors"
-                        [ngClass]="u.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-                        {{ u.active ? 'Active' : 'Inactive' }}
-                      </span>
+                        <span class="inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase transition-colors"
+                          [ngClass]="u.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                          {{ u.active ? 'ACTIVE' : 'INACTIVE' }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button (click)="startEditUser(u, 'edit-underwriter')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-[10px] font-bold uppercase transition-colors">Edit</button>
                     </td>
                   </tr>
                 }
@@ -835,7 +840,7 @@
           <p class="text-sm text-slate-500 mt-0.5">Staff members authorized to handle and settle insurance claims</p>
         </div>
 
-        @if (isLoadingUsers()) {
+        @if (isLoading()) {
           <div class="flex items-center justify-center py-20 text-slate-400">
             <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -845,7 +850,7 @@
           </div>
         } @else if (claimsOfficers().length === 0) {
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-20 text-center text-slate-400">
-            <p class="text-sm">No claims officers found in the system.</p>
+            No claims officers found.
           </div>
         } @else {
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -857,20 +862,24 @@
                   <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Email</th>
                   <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Mobile</th>
                   <th class="text-center px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                  <th class="text-center px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 @for (c of claimsOfficers(); track c.userId) {
                   <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-5 py-4 font-mono text-xs">#{{ c.userId }}</td>
+                    <td class="px-5 py-4 font-mono text-xs text-slate-400">#{{ c.userId }}</td>
                     <td class="px-5 py-4 font-medium text-slate-800">{{ c.fullName }}</td>
                     <td class="px-5 py-4 text-slate-500">{{ c.email }}</td>
                     <td class="px-5 py-4 text-slate-500 font-mono text-xs">{{ c.phone || '—' }}</td>
                     <td class="px-5 py-4 text-center">
-                      <span class="inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase transition-colors"
-                        [ngClass]="c.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-                        {{ c.active ? 'Active' : 'Inactive' }}
-                      </span>
+                        <span class="inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase transition-colors"
+                          [ngClass]="c.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                          {{ c.active ? 'ACTIVE' : 'INACTIVE' }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button (click)="startEditUser(c, 'edit-claims-officer')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-[10px] font-bold uppercase transition-colors">Edit</button>
                     </td>
                   </tr>
                 }
@@ -897,7 +906,7 @@
           </button>
         </div>
 
-        @if (isLoadingEvents()) {
+        @if (isLoading()) {
           <div class="flex items-center justify-center py-20 text-slate-400">
             <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -910,7 +919,7 @@
             <svg class="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <p class="text-sm">No events found on the platform.</p>
+            <p class="text-sm">No events found.</p>
           </div>
         } @else {
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -933,11 +942,11 @@
                       <td class="px-5 py-4 text-slate-600">{{ event.eventDate }}</td>
                       <td class="px-5 py-4 text-slate-500">{{ event.location }}</td>
                       <td class="px-5 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          [ngClass]="event.eventType === 'OUTDOOR_MUSIC_CONCERT'
-                            ? 'bg-purple-50 text-purple-700'
+                        <span class="inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase"
+                          [ngClass]="event.eventType === 'OUTDOOR_MUSIC_CONCERT' 
+                            ? 'bg-purple-50 text-purple-700' 
                             : 'bg-blue-50 text-blue-700'">
-                          {{ event.eventType }}
+                          {{ event.eventType?.replace('_', ' ') || '—' }}
                         </span>
                       </td>
                     </tr>
@@ -967,7 +976,7 @@
           </button>
         </div>
 
-        @if (isLoadingSubscriptions()) {
+        @if (isLoading()) {
           <div class="flex items-center justify-center py-20 text-slate-400">
             <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -993,6 +1002,7 @@
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Event</th>
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Policy</th>
                     <th class="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Premium (₹)</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Assigned To</th>
                     <th class="text-center px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
                   </tr>
                 </thead>
@@ -1007,6 +1017,26 @@
                       <td class="px-5 py-4 text-slate-600 text-xs">{{ sub.eventName || '—' }}</td>
                       <td class="px-5 py-4 text-slate-600 text-xs">{{ sub.policyName || '—' }}</td>
                       <td class="px-5 py-4 text-right text-slate-700 font-medium">{{ sub.premiumAmount != null ? (sub.premiumAmount | number:'1.2-2') : '—' }}</td>
+                      <td class="px-5 py-4">
+                        @if (sub.status === 'PENDING' && (!sub.assignedUnderwriterName || sub.assignedUnderwriterName === 'NOT ASSIGNED')) {
+                          <select (change)="assignUnderwriter(sub.subscriptionId ?? sub.id, $event)"
+                            class="text-xs border border-slate-200 rounded px-2 py-1 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="">Assign Underwriter</option>
+                            @for (u of underwriters(); track u.userId) {
+                              <option [value]="u.userId">
+                                {{ u.fullName }}
+                              </option>
+                            }
+                          </select>
+                        } @else {
+                          <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            <span class="text-xs text-slate-700 font-bold uppercase tracking-tight">
+                              {{ sub.assignedUnderwriterName }}
+                            </span>
+                          </div>
+                        }
+                      </td>
                       <td class="px-5 py-4 text-center">
                         <span class="inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase"
                           [ngClass]="{
@@ -1044,7 +1074,7 @@
           </button>
         </div>
 
-        @if (isLoadingClaims()) {
+        @if (isLoading()) {
           <div class="flex items-center justify-center py-20 text-slate-400">
             <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1069,6 +1099,7 @@
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Customer</th>
                     <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Event</th>
                     <th class="text-right px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Claim Amount (₹)</th>
+                    <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Assigned To</th>
                     <th class="text-center px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
                   </tr>
                 </thead>
@@ -1082,6 +1113,26 @@
                       </td>
                       <td class="px-5 py-4 text-slate-600 text-xs">{{ claim.eventName || '—' }}</td>
                       <td class="px-5 py-4 text-right text-slate-700 font-medium">{{ claim.claimAmount != null ? (claim.claimAmount | number:'1.2-2') : '—' }}</td>
+                      <td class="px-5 py-4">
+                        @if (claim.status === 'PENDING' && (!claim.assignedOfficerName || claim.assignedOfficerName === 'NOT ASSIGNED')) {
+                          <select (change)="assignClaimsOfficer(claim.claimId ?? claim.id, $event)"
+                            class="text-xs border border-slate-200 rounded px-2 py-1 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="">Assign Officer</option>
+                            @for (o of claimsOfficers(); track o.userId) {
+                              <option [value]="o.userId">
+                                {{ o.fullName }}
+                              </option>
+                            }
+                          </select>
+                        } @else {
+                          <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            <span class="text-xs text-slate-700 font-bold uppercase tracking-tight">
+                              {{ claim.assignedOfficerName }}
+                            </span>
+                          </div>
+                        }
+                      </td>
                       <td class="px-5 py-4 text-center">
                         <span class="inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase"
                           [ngClass]="{

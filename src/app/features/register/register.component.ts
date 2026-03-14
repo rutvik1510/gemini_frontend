@@ -24,6 +24,7 @@ export class RegisterComponent {
   });
 
   readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly isLoading = signal(false);
 
   get nameControl() { return this.form.controls.name; }
@@ -40,12 +41,13 @@ export class RegisterComponent {
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    this.successMessage.set(null);
 
     this.registerService.register(this.form.getRawValue()).subscribe({
       next: () => {
         this.isLoading.set(false);
-        alert('Registration successful. Please login.');
-        this.router.navigateByUrl('/login');
+        this.successMessage.set('Registration successful! Redirecting to login...');
+        setTimeout(() => this.router.navigateByUrl('/login'), 2000);
       },
       error: (err) => {
         this.isLoading.set(false);

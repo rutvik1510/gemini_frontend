@@ -1,5 +1,4 @@
-import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 
@@ -17,11 +16,10 @@ interface Stat {
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {
-  private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
   protected authService = inject(AuthService);
 
-  readonly isLoggedIn = () => isPlatformBrowser(this.platformId) && this.authService.isLoggedIn();
+  readonly isLoggedIn = () => this.authService.isLoggedIn();
 
   getDashboardRoute(): string {
     const roles = this.authService.getRoles();
@@ -142,9 +140,7 @@ export class HomeComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.initCounterObserver();
-    }
+    this.initCounterObserver();
   }
 
   navigateTo(path: string): void {
@@ -152,7 +148,6 @@ export class HomeComponent implements OnInit {
   }
 
   scrollTo(sectionId: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
     const el = document.getElementById(sectionId);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });

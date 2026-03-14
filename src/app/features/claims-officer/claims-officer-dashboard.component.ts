@@ -1,9 +1,10 @@
-import { Component, inject, signal, afterNextRender } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ClaimsOfficerService } from './claims-officer.service';
 import { AuthService } from '../../core/auth.service';
 import { FormsModule } from '@angular/forms';
+import { NotificationDropdownComponent } from '../notifications/notification-dropdown.component';
 
 export interface Claim {
   claimId: number;
@@ -16,12 +17,13 @@ export interface Claim {
   riskLevel?: string;
   filedAt: string;
   status: string;
+  assignedOfficerName?: string;
 }
 
 @Component({
   selector: 'app-claims-officer-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NotificationDropdownComponent],
   templateUrl: './claims-officer-dashboard.component.html',
 })
 export class ClaimsOfficerDashboardComponent {
@@ -29,8 +31,11 @@ export class ClaimsOfficerDashboardComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  readonly currentUsername = computed(() => this.authService.userName());
+
+  readonly filter = signal<'all' | 'assigned'>('assigned');
   readonly claims = signal<Claim[]>([]);
-  readonly isLoading = signal(true);
+  readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
   readonly processingId = signal<number | null>(null);
@@ -40,19 +45,30 @@ export class ClaimsOfficerDashboardComponent {
   customAmount: number = 0;
 
   constructor() {
-    afterNextRender(() => this.loadClaims());
+    effect(() => {
+      this.loadClaims(this.filter());
+    });
   }
 
-  private loadClaims(): void {
+  setFilter(f: 'all' | 'assigned'): void {
+    this.filter.set(f);
+  }
+
+  private loadClaims(f: 'all' | 'assigned'): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.service.getClaims().subscribe({
+
+    const obs = f === 'all' 
+      ? this.service.getClaims() 
+      : this.service.getAssignedClaims();
+
+    obs.subscribe({
       next: (res: any) => {
-        this.claims.set(res.data ?? res);
+        this.claims.set(res.data ?? res ?? []);
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Failed to load claims. Please try again.');
+        this.errorMessage.set('Failed to load claims.');
         this.isLoading.set(false);
       },
     });
@@ -90,26 +106,26 @@ export class ClaimsOfficerDashboardComponent {
       next: () => {
         this.processingId.set(null);
         this.adjustingId.set(null);
-        this.loadClaims();
+        this.loadClaims(this.filter());
       },
       error: (err) => {
-        this.actionError.set(err?.error?.message ?? 'Failed to approve claim.');
+        this.actionError.set(err?.error?.message ?? 'Failed to approve.');
         this.processingId.set(null);
       },
     });
   }
 
   reject(id: number): void {
-    if (!confirm('Confirm claim rejection?')) return;
+    if (!confirm('Confirm rejection?')) return;
     this.processingId.set(id);
     this.actionError.set(null);
     this.service.rejectClaim(id).subscribe({
       next: () => {
         this.processingId.set(null);
-        this.loadClaims();
+        this.loadClaims(this.filter());
       },
       error: (err: any) => {
-        this.actionError.set(err?.error?.message ?? 'Failed to reject claim.');
+        this.actionError.set(err?.error?.message ?? 'Failed to reject.');
         this.processingId.set(null);
       },
     });
@@ -127,6 +143,15 @@ export class ClaimsOfficerDashboardComponent {
 
   viewDetails(id: number): void {
     this.router.navigate(['/claims-detail', id]);
+  }
+
+  viewDocument(path: string | undefined): void {
+    if (!path) {
+      alert('No evidence document provided.');
+      return;
+    }
+    const url = path.startsWith('http') ? path : `http://localhost:8080${path.startsWith('/') ? '' : '/'}${path}`;
+    window.open(url, '_blank');
   }
 
   logout(): void {

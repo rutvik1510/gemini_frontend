@@ -48,13 +48,14 @@ export class LoginComponent {
 
     this.loginService.login(email, password).subscribe({
       next: (response) => {
-        const { token, name, email: userEmail } = response.data;
+        const { token, name, email: userEmail, role: backendRole } = response.data;
         this.authService.login(token, name, userEmail);
         
-        const roles = this.authService.getRoles();
-        const role = roles[0];
-
         this.isLoading.set(false);
+        // Normalize role for routing
+        const role = backendRole ? backendRole.replace(/^ROLE_/i, '').toUpperCase() : this.authService.getPrimaryRole();
+        
+        console.log('Login successful. Route role:', role);
         const route = (role && ROLE_ROUTES[role]) ?? '/customer-dashboard';
         this.router.navigateByUrl(route);
       },

@@ -21,4 +21,8 @@ export class EventDetailsService {
   createSubscription(eventId: number, policyId: number): Observable<unknown> {
     return this.http.post('http://localhost:8080/subscriptions', { eventId, policyId });
   }
+
+  getClaims(): Observable<unknown> {
+    return this.http.get('http://localhost:8080/claims/customer');
+  }
 }

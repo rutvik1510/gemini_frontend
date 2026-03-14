@@ -1,4 +1,4 @@
-import { Component, inject, signal, afterNextRender } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CustomerClaimsService } from './customer-claims.service';
@@ -19,7 +19,7 @@ export interface CustomerClaim {
   imports: [CommonModule],
   templateUrl: './customer-claims.component.html',
 })
-export class CustomerClaimsComponent {
+export class CustomerClaimsComponent implements OnInit {
   private readonly service = inject(CustomerClaimsService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -29,23 +29,29 @@ export class CustomerClaimsComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
   readonly isCollecting = signal<number | null>(null);
+  readonly isConfirming = signal<number | null>(null);
 
-  constructor() {
-    afterNextRender(() => {
-      this.loadClaims();
-    });
+  ngOnInit(): void {
+    this.loadClaims();
+  }
+
+  showConfirm(id: number): void {
+    this.isConfirming.set(id);
+  }
+
+  cancelConfirm(): void {
+    this.isConfirming.set(null);
   }
 
   private loadClaims(): void {
     this.isLoading.set(true);
-    this.errorMessage.set(null);
     this.service.getClaims().subscribe({
       next: (res: any) => {
-        this.claims.set(res.data ?? res);
+        this.claims.set(res.data ?? res ?? []);
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Failed to load claims. Please try again.');
+        this.errorMessage.set('Failed to load claims.');
         this.isLoading.set(false);
       },
     });
@@ -58,18 +64,19 @@ export class CustomerClaimsComponent {
 
   receivePayment(claimId: number): void {
     this.isCollecting.set(claimId);
+    this.isConfirming.set(null);
     this.errorMessage.set(null);
     this.successMessage.set(null);
     
     this.service.collectClaim(claimId).subscribe({
       next: () => {
-        this.successMessage.set('Payout successfully transferred to your account!');
+        this.successMessage.set('Payout successfully transferred!');
         this.isCollecting.set(null);
         this.loadClaims();
         setTimeout(() => this.successMessage.set(null), 5000);
       },
       error: (err) => {
-        this.errorMessage.set(err?.error?.message ?? 'Failed to collect payout.');
+        this.errorMessage.set(err?.error?.message ?? 'Collection failed.');
         this.isCollecting.set(null);
       }
     });
@@ -78,27 +85,22 @@ export class CustomerClaimsComponent {
   statusClass(status: string): string {
     const s = status?.toUpperCase();
     switch (s) {
-      case 'APPROVED': return 'bg-blue-100 text-blue-700'; // Approved but not yet paid
+      case 'APPROVED': return 'bg-blue-100 text-blue-700'; 
       case 'REJECTED': return 'bg-red-100 text-red-700';
       case 'COLLECTED':
       case 'PAID':
-      case 'SETTLED':  return 'bg-green-100 text-green-700'; // Fully collected/settled
+      case 'SETTLED':  return 'bg-green-100 text-green-700';
       default:         return 'bg-yellow-100 text-yellow-700';
     }
   }
 
-  // Returns Tailwind classes for each progress stage pill.
-  // stage: 'filed' | 'review' | 'outcome'
   stageClass(status: string, stage: 'filed' | 'review' | 'outcome'): string {
     const s = status?.toUpperCase();
-    if (stage === 'filed') {
-      return 'bg-green-500 text-white';
-    }
+    if (stage === 'filed') return 'bg-green-500 text-white';
     if (stage === 'review') {
       if (s === 'PENDING') return 'bg-yellow-400 text-white';
       return 'bg-green-500 text-white';
     }
-    // outcome stage
     if (s === 'APPROVED' || s === 'COLLECTED' || s === 'PAID' || s === 'SETTLED') return 'bg-green-500 text-white';
     if (s === 'REJECTED') return 'bg-red-500 text-white';
     return 'bg-slate-200 text-slate-400';

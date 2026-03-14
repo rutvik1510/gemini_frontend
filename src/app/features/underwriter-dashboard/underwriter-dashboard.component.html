@@ -12,23 +12,28 @@
       <span class="text-[#E5E7EB]/70 mx-1">|</span>
       <span class="text-sm font-medium text-[#374151]">Underwriter Dashboard</span>
     </div>
-    <button
-      (click)="logout()"
-      class="flex items-center gap-1.5 text-sm text-[#374151] hover:text-red-600 transition-colors"
-    >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-      </svg>
-      Logout
-    </button>
+    <div class="flex items-center gap-4">
+      <app-notification-dropdown />
+      <button
+        (click)="logout()"
+        class="flex items-center gap-1.5 text-sm text-[#374151] hover:text-red-600 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        Logout
+      </button>
+    </div>
   </header>
 
   <main class="px-6 py-8 max-w-screen-xl mx-auto">
 
     <!-- Page title -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[#1F2937]">Policy Subscription Review</h1>
-      <p class="text-sm text-[#374151] mt-1">Review and approve or reject pending customer policy subscriptions.</p>
+    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-[#1F2937]">Assigned Policy Review</h1>
+        <p class="text-sm text-[#374151] mt-1">Review and approve or reject policy subscriptions assigned to you by the Admin.</p>
+      </div>
     </div>
 
     <!-- Action error -->
@@ -40,136 +45,95 @@
 
     <!-- Loading -->
     @if (isLoading()) {
-      <div class="bg-white rounded-xl shadow p-12 flex items-center justify-center">
-        <svg class="w-6 h-6 text-indigo-500 animate-spin mr-3" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-        </svg>
-        <span class="text-[#374151] text-sm">Loading subscriptions...</span>
+      <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+        <p class="text-slate-500 font-medium italic">Loading your assignments...</p>
       </div>
     }
 
     <!-- Error -->
-    @if (!isLoading() && errorMessage()) {
-      <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-        {{ errorMessage() }}
+    @if (errorMessage()) {
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-8 text-center shadow-sm">
+        <p class="font-bold">{{ errorMessage() }}</p>
+        <button (click)="loadSubscriptions()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold">Try Again</button>
       </div>
     }
 
-    <!-- Empty state -->
+    <!-- Empty State -->
     @if (!isLoading() && !errorMessage() && subscriptions().length === 0) {
-      <div class="bg-white rounded-xl shadow p-12 text-center">
-        <svg class="w-12 h-12 text-[#E5E7EB]/70 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <p class="text-[#374151] text-sm">No subscriptions found.</p>
+      <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
+        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-[#1F2937]">All caught up!</h3>
+        <p class="text-slate-500 mt-1">No pending subscriptions found in this view.</p>
       </div>
     }
 
     <!-- Table -->
     @if (!isLoading() && !errorMessage() && subscriptions().length > 0) {
-      <div class="bg-white rounded-xl shadow overflow-hidden">
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-[#F3F4F6] border-b border-[#8C1D40]/10">
-                <th class="text-left px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">ID</th>
-                <th class="text-left px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">Event</th>
-                <th class="text-left px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">Customer</th>
-                <th class="text-left px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">Policy</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">Risk %</th>
-                <th class="text-right px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">Premium</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">Status</th>
-                <th class="text-center px-4 py-3 text-xs font-semibold text-[#374151] uppercase tracking-wide">Actions</th>
+          <table class="w-full text-sm text-left">
+            <thead class="bg-[#F9FAFB] border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">ID</th>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Event</th>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Customer</th>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Policy</th>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Risk %</th>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Premium (₹)</th>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Status</th>
+                <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               @for (sub of subscriptions(); track sub.subscriptionId) {
-                <tr class="border-b border-slate-100 hover:bg-[#F3F4F6]/50 transition-colors">
-
-                  <!-- ID -->
-                  <td class="px-4 py-3 text-[#374151] font-mono text-xs">#{{ sub.subscriptionId }}</td>
-
-                  <!-- Event -->
-                  <td class="px-4 py-3">
-                    <p class="font-medium text-[#1F2937]">{{ sub.eventName }}</p>
-                  </td>
-
-                  <!-- Customer -->
-                  <td class="px-4 py-3 text-slate-600">
-                    {{ sub.customerName }}
-                  </td>
-
-                  <!-- Policy -->
-                  <td class="px-4 py-3 text-[#1F2937]">
-                    {{ sub.policyName }}
-                  </td>
-
-                  <!-- Risk % -->
-                  <td class="px-4 py-3 text-right text-[#1F2937] font-medium">
-                    {{ sub.riskPercentage }}%
-                  </td>
-
-                  <!-- Premium -->
-                  <td class="px-4 py-3 text-right font-semibold text-[#1F2937]">
-                    {{ sub.premiumAmount | currency:'INR':'symbol':'1.0-0' }}
-                  </td>
-
-                  <!-- Status -->
+                <tr class="border-b border-slate-100 hover:bg-[#F3F4F6]/50 transition-colors text-xs">
+                  <td class="px-4 py-3 text-[#374151] font-mono">#{{ sub.subscriptionId }}</td>
+                  <td class="px-4 py-3 font-medium text-[#1F2937]">{{ sub.eventName }}</td>
+                  <td class="px-4 py-3 text-slate-600">{{ sub.customerName }}</td>
+                  <td class="px-4 py-3 text-[#1F2937]">{{ sub.policyName }}</td>
+                  <td class="px-4 py-3 text-right text-[#1F2937] font-medium">{{ sub.riskPercentage }}%</td>
+                  <td class="px-4 py-3 text-right font-semibold text-[#1F2937]">₹{{ sub.premiumAmount | number }}</td>
                   <td class="px-4 py-3 text-center">
-                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold {{ statusClass(sub.status) }}">
+                    <span class="inline-block px-2 py-1 rounded-full font-bold {{ statusClass(sub.status) }}">
                       {{ sub.status }}
                     </span>
                   </td>
-
-                  <!-- Actions -->
                   <td class="px-4 py-3 text-center">
-                    <div class="flex items-center justify-center gap-2 flex-wrap">
-                      <button
-                        type="button"
-                        (click)="viewDetails(sub.subscriptionId)"
-                        class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors"
-                      >
-                        View Details
-                      </button>
-                      @if (sub.status === 'PENDING') {
-                        <button
-                          type="button"
-                          [disabled]="processingId() === sub.subscriptionId"
-                          (click)="approve(sub.subscriptionId)"
-                          class="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold transition-colors"
-                        >
-                          @if (processingId() === sub.subscriptionId) {
-                            <span>...</span>
-                          } @else {
-                            Approve
-                          }
+                    <div class="flex items-center justify-center gap-2">
+                      @if (sub.status === 'PENDING' && sub.assignedUnderwriterName === currentUsername()) {
+                        <button (click)="approve(sub.subscriptionId)" [disabled]="processingId() === sub.subscriptionId"
+                          class="px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded font-bold uppercase tracking-tighter disabled:opacity-50 transition-colors">
+                          Approve
                         </button>
-                        <button
-                          type="button"
-                          [disabled]="processingId() === sub.subscriptionId"
-                          (click)="reject(sub.subscriptionId)"
-                          class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold transition-colors"
-                        >
-                          @if (processingId() === sub.subscriptionId) {
-                            <span>...</span>
-                          } @else {
-                            Reject
-                          }
+                        <button (click)="reject(sub.subscriptionId)" [disabled]="processingId() === sub.subscriptionId"
+                          class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded font-bold uppercase tracking-tighter disabled:opacity-50 transition-colors">
+                          Reject
+                        </button>
+                      }
+                      <button (click)="viewDetails(sub.subscriptionId)"
+                        class="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold uppercase tracking-tighter transition-colors">
+                        Details
+                      </button>
+                      @if (sub.safetyComplianceDocPath) {
+                        <button (click)="viewDocument(sub.safetyComplianceDocPath)"
+                          class="px-2 py-1 bg-blue-50 border border-blue-100 text-blue-600 rounded font-bold uppercase tracking-tighter transition-colors">
+                          PDF
                         </button>
                       }
                     </div>
                   </td>
-
                 </tr>
               }
             </tbody>
           </table>
         </div>
-
-        <!-- Table footer -->
         <div class="px-4 py-3 border-t border-slate-100 bg-slate-50">
-          <p class="text-xs text-[#374151]">{{ subscriptions().length }} subscription{{ subscriptions().length !== 1 ? 's' : '' }} total</p>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ subscriptions().length }} subscriptions found</p>
         </div>
       </div>
     }

@@ -172,18 +172,32 @@
                           Paid ✓
                         </span>
                       } @else {
-                        <button
-                          type="button"
-                          (click)="receivePayment(claim.claimId)"
-                          [disabled]="isCollecting() === claim.claimId"
-                          class="bg-[#1F2937] hover:bg-[#8C1D40] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
-                        >
-                          @if (isCollecting() === claim.claimId) {
-                            <span class="inline-block animate-spin mr-2 text-[10px]">◌</span> Processing...
-                          } @else {
-                            Collect Payout
-                          }
-                        </button>
+                        @if (isConfirming() === claim.claimId) {
+                          <div class="flex flex-col gap-2 items-center min-w-[150px] animate-in fade-in zoom-in duration-300">
+                             <p class="text-[10px] font-black text-blue-900 uppercase">Confirm Collection?</p>
+                             <div class="flex gap-2">
+                               <button (click)="receivePayment(claim.claimId)" class="px-3 py-1.5 bg-green-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all">
+                                 Yes, Collect
+                               </button>
+                               <button (click)="cancelConfirm()" class="px-3 py-1.5 bg-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-300 transition-all">
+                                 No
+                               </button>
+                             </div>
+                          </div>
+                        } @else {
+                          <button
+                            type="button"
+                            (click)="showConfirm(claim.claimId)"
+                            [disabled]="isCollecting() === claim.claimId"
+                            class="bg-[#1F2937] hover:bg-[#8C1D40] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50"
+                          >
+                            @if (isCollecting() === claim.claimId) {
+                              <span class="inline-block animate-spin mr-2 text-[10px]">◌</span> Processing...
+                            } @else {
+                              Collect Payout
+                            }
+                          </button>
+                        }
                       }
                     } @else {
                       <span class="text-slate-400 text-xs">—</span>

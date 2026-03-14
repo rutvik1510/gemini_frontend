@@ -1,35 +1,29 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
-
-function decodeJwtEmail(token: string): string {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-    return payload['sub'] ?? payload['email'] ?? 'Customer';
-  } catch {
-    return 'Customer';
-  }
-}
+import { NotificationDropdownComponent } from '../notifications/notification-dropdown.component';
 
 @Component({
   standalone: true,
   selector: 'app-customer-dashboard',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NotificationDropdownComponent],
   templateUrl: './customer-dashboard.component.html',
 })
-export class CustomerDashboardComponent implements OnInit {
+export class CustomerDashboardComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly customerEmail = signal<string>('Customer');
-
-  ngOnInit(): void {
+  readonly customerEmail = computed(() => {
     const token = this.authService.getToken();
-    if (token) {
-      this.customerEmail.set(decodeJwtEmail(token));
+    if (!token) return 'Customer';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return payload['sub'] ?? payload['email'] ?? 'Customer';
+    } catch {
+      return 'Customer';
     }
-  }
+  });
 
   logout(): void {
     this.authService.logout();

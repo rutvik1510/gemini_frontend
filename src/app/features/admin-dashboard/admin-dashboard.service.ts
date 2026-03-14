@@ -10,7 +10,6 @@ export interface Policy {
   domain: string;
   baseRate: number;
   maxCoverageAmount: number;
-  deductible: number;
   coversTheft: boolean;
   coversWeather: boolean;
   coversFire: boolean;
@@ -25,7 +24,6 @@ export interface CreatePolicyRequest {
   domain: string;
   baseRate: number;
   maxCoverageAmount: number;
-  deductible: number;
   coversTheft: boolean;
   coversWeather: boolean;
   coversFire: boolean;
@@ -103,6 +101,10 @@ export class AdminDashboardService {
     return this.http.post(`${this.base}/create-claims-officer`, payload);
   }
 
+  updateUser(id: number, payload: CreateUserRequest): Observable<ApiResponse<string>> {
+    return this.http.put<ApiResponse<string>>(`${this.base}/users/${id}`, payload);
+  }
+
   getUnderwriters(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.base}/underwriters`);
   }
@@ -117,5 +119,21 @@ export class AdminDashboardService {
 
   getAllEvents(): Observable<ApiResponse<AdminEvent[]>> {
     return this.http.get<ApiResponse<AdminEvent[]>>(`${this.base}/events`);
+  }
+
+  getSubscriptions(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.base}/subscriptions`);
+  }
+
+  getClaims(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.base}/claims`);
+  }
+
+  assignUnderwriter(subscriptionId: number, underwriterId: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/subscriptions/${subscriptionId}/assign/${underwriterId}`, {});
+  }
+
+  assignClaimsOfficer(claimId: number, officerId: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/claims/${claimId}/assign/${officerId}`, {});
   }
 }

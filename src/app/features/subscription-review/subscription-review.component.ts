@@ -59,6 +59,12 @@ export class SubscriptionReviewComponent {
     return this.sub()?.totalRisk ?? 0;
   }
 
+  getRiskFactorsArray(): string[] {
+    const factors = this.sub()?.riskFactors;
+    if (!factors) return [];
+    return factors.split(',').map((f: string) => f.trim());
+  }
+
   riskLevelLabel(pct: number): string {
     if (pct <= 5)  return 'LOW';
     if (pct <= 10) return 'MEDIUM';

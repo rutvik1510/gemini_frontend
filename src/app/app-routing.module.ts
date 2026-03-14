@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './features/login/login.component';
+import { roleGuard } from './core/role.guard';
 
 const routes: Routes = [
   {
@@ -30,6 +31,8 @@ const routes: Routes = [
       import('./features/admin-dashboard/admin-dashboard.component').then(
         (m) => m.AdminDashboardComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_ADMIN' },
   },
   {
     path: 'customer-dashboard',
@@ -37,6 +40,8 @@ const routes: Routes = [
       import('./features/customer-dashboard/customer-dashboard.component').then(
         (m) => m.CustomerDashboardComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'create-event',
@@ -44,6 +49,8 @@ const routes: Routes = [
       import('./features/events/create-event.component').then(
         (m) => m.CreateEventComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'my-events',
@@ -51,6 +58,8 @@ const routes: Routes = [
       import('./features/my-events/my-events.component').then(
         (m) => m.MyEventsComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'event-details/:id',
@@ -58,6 +67,8 @@ const routes: Routes = [
       import('./features/event-details/event-details.component').then(
         (m) => m.EventDetailsComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'my-subscriptions',
@@ -65,6 +76,8 @@ const routes: Routes = [
       import('./features/my-subscriptions/my-subscriptions.component').then(
         (m) => m.MySubscriptionsComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'file-claim',
@@ -72,6 +85,8 @@ const routes: Routes = [
       import('./features/file-claim/file-claim.component').then(
         (m) => m.FileClaimComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'file-claim/:subscriptionId',
@@ -79,6 +94,8 @@ const routes: Routes = [
       import('./features/file-claim/file-claim.component').then(
         (m) => m.FileClaimComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'underwriter-dashboard',
@@ -86,6 +103,8 @@ const routes: Routes = [
       import('./features/underwriter-dashboard/underwriter-dashboard.component').then(
         (m) => m.UnderwriterDashboardComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_UNDERWRITER' },
   },
   {
     path: 'underwriter/subscription/:id',
@@ -93,6 +112,8 @@ const routes: Routes = [
       import('./features/subscription-review/subscription-review.component').then(
         (m) => m.SubscriptionReviewComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_UNDERWRITER' },
   },
   {
     path: 'claims-dashboard',
@@ -100,6 +121,8 @@ const routes: Routes = [
       import('./features/claims-officer/claims-officer-dashboard.component').then(
         (m) => m.ClaimsOfficerDashboardComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CLAIMS_OFFICER' },
   },
   {
     path: 'claims-detail/:id',
@@ -107,6 +130,8 @@ const routes: Routes = [
       import('./features/claims-officer/claims-officer-detail.component').then(
         (m) => m.ClaimsOfficerDetailComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CLAIMS_OFFICER' },
   },
   {
     path: 'my-claims',
@@ -114,6 +139,17 @@ const routes: Routes = [
       import('./features/customer-claims/customer-claims.component').then(
         (m) => m.CustomerClaimsComponent,
       ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
+  },
+  {
+    path: 'checkout',
+    loadComponent: () =>
+      import('./features/payment-gateway/fake-payment-gateway.component').then(
+        (m) => m.FakePaymentGatewayComponent,
+      ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
   },
 ];
 

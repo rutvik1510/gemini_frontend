@@ -177,6 +177,9 @@
               <span class="text-xs text-slate-500 font-medium tracking-tight">Click to upload proof of loss (PDF only)</span>
             }
           </div>
+          @if (fileError()) {
+            <p class="mt-2 text-xs font-bold text-red-500">{{ fileError() }}</p>
+          }
         </div>
 
         <!-- Submit -->

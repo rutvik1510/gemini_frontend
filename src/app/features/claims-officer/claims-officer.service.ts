@@ -11,6 +11,10 @@ export class ClaimsOfficerService {
     return this.http.get(this.base);
   }
 
+  getAssignedClaims(): Observable<any> {
+    return this.http.get(`${this.base}/assigned`);
+  }
+
   getClaimDetails(id: number): Observable<any> {
     return this.http.get(`${this.base}/${id}`);
   }

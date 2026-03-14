@@ -25,21 +25,33 @@
             <p class="text-sm font-bold text-[#8C1D40] uppercase tracking-widest">{{ event().eventType?.replace('_', ' ') }}</p>
           </div>
         </div>
-        <div class="flex gap-8 border-l border-slate-100 pl-8">
-          <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1">Budget</p><p class="text-lg font-bold">₹{{ event().budget | number }}</p></div>
-          <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1">Date</p><p class="text-lg font-bold">{{ event().eventDate | date:'dd MMM' }}</p></div>
+        <div class="flex items-center gap-8">
+          @if (isEventLocked()) {
+            <div class="px-6 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-3 animate-pulse">
+              <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+              </div>
+              <div>
+                <p class="text-xs font-black text-emerald-800 uppercase tracking-widest">Event Settled</p>
+                <p class="text-[10px] text-emerald-600 font-bold uppercase">Locked / Read-Only</p>
+              </div>
+            </div>
+          }
+          <div class="flex gap-8 border-l border-slate-100 pl-8">
+            <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1">Budget</p><p class="text-lg font-bold">₹{{ event().budget | number }}</p></div>
+            <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1">Date</p><p class="text-lg font-bold">{{ event().eventDate | date:'dd MMM' }}</p></div>
+          </div>
         </div>
       </div>
     </div>
     }
 
-    <!-- ===== STEP 2: CHOOSE YOUR COVERAGE TIER ===== -->
     <div class="text-center mb-10">
       <h2 class="text-2xl font-black text-[#1F2937] mb-2">Select Insurance Coverage</h2>
       <p class="text-slate-500 font-medium">Choose the protection tier that best fits your event's needs.</p>
     </div>
 
-    @if (isLoadingPolicies()) {
+    @if (isLoading()) {
       <div class="flex justify-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8C1D40]"></div></div>
     }
 
@@ -58,14 +70,10 @@
             <h3 class="text-xl font-black text-[#1F2937] mb-2">{{ policy.policyName }}</h3>
             <p class="text-sm text-slate-500 font-medium mb-6 leading-relaxed">{{ policy.description }}</p>
             
-            <div class="mb-6 grid grid-cols-2 gap-4">
+            <div class="mb-6 grid grid-cols-1 gap-4">
               <div>
                 <p class="text-[9px] text-slate-400 font-black uppercase mb-1 tracking-widest">Max Payout</p>
                 <p class="text-lg font-black text-[#1F2937]">₹{{ (policy.maxCoverageAmount ?? 0) | number }}</p>
-              </div>
-              <div>
-                <p class="text-[9px] text-slate-400 font-black uppercase mb-1 tracking-widest">Deductible</p>
-                <p class="text-lg font-black text-slate-600">₹{{ (policy.deductible ?? 0) | number }}</p>
               </div>
             </div>
 
@@ -95,6 +103,14 @@
                 <button disabled class="w-full py-4 rounded-2xl bg-emerald-100 text-emerald-700 font-black text-sm uppercase cursor-not-allowed">
                   Subscribed ✓
                 </button>
+              } @else if (isEventLocked()) {
+                <button disabled class="w-full py-4 rounded-2xl bg-slate-100 text-slate-400 font-black text-xs uppercase cursor-not-allowed">
+                  Event Locked
+                </button>
+              } @else if (hasPaidPolicy()) {
+                <button disabled class="w-full py-4 rounded-2xl bg-slate-100 text-slate-400 font-black text-xs uppercase cursor-not-allowed">
+                  Another Policy Active
+                </button>
               } @else {
                 <button (click)="subscribe(policy.policyId ?? policy.id)"
                   [disabled]="subscribingPolicyId() === (policy.policyId ?? policy.id)"
@@ -115,14 +131,24 @@
       }
     </div>
 
-    <!-- ===== QUOTE RESULT SECTION (AFTER SUB) ===== -->
+    <!-- ===== QUOTE RESULT SECTION (AFTER SUB OR ON RE-VISIT) ===== -->
     @if (quoteResult()) {
       <div class="bg-[#1F2937] rounded-3xl shadow-2xl p-10 text-white animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div class="flex items-center gap-3 mb-8">
-          <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+        <div class="flex items-center justify-between mb-8">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h2 class="text-2xl font-black">
+              {{ quoteResult().status === 'QUOTE' ? 'Subscription Request Generated!' : 'Active Insurance Details' }}
+            </h2>
           </div>
-          <h2 class="text-2xl font-black">Subscription Request Generated!</h2>
+          @if (quoteResult().status !== 'QUOTE') {
+            <a routerLink="/my-subscriptions" class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-colors flex items-center gap-2">
+              View All Subscriptions
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+          }
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">

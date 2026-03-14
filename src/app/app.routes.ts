@@ -5,6 +5,15 @@ import { roleGuard } from './core/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
+  {
+    path: 'checkout',
+    loadComponent: () =>
+      import('./features/payment-gateway/fake-payment-gateway.component').then(
+        (m) => m.FakePaymentGatewayComponent,
+      ),
+    canActivate: [roleGuard],
+    data: { role: 'ROLE_CUSTOMER' },
+  },
 
   // ── Public ────────────────────────────────────────────────────────
   {
@@ -30,7 +39,7 @@ export const routes: Routes = [
         (m) => m.AdminDashboardComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'ADMIN' },
+    data: { role: 'ROLE_ADMIN' },
   },
 
   // ── CUSTOMER ──────────────────────────────────────────────────────
@@ -41,7 +50,7 @@ export const routes: Routes = [
         (m) => m.CustomerDashboardComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'create-event',
@@ -50,7 +59,7 @@ export const routes: Routes = [
         (m) => m.CreateEventComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'my-events',
@@ -59,7 +68,7 @@ export const routes: Routes = [
         (m) => m.MyEventsComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'event-details/:id',
@@ -68,7 +77,7 @@ export const routes: Routes = [
         (m) => m.EventDetailsComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'my-subscriptions',
@@ -77,7 +86,7 @@ export const routes: Routes = [
         (m) => m.MySubscriptionsComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'file-claim',
@@ -86,7 +95,7 @@ export const routes: Routes = [
         (m) => m.FileClaimComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'file-claim/:subscriptionId',
@@ -95,7 +104,7 @@ export const routes: Routes = [
         (m) => m.FileClaimComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
   {
     path: 'my-claims',
@@ -104,7 +113,7 @@ export const routes: Routes = [
         (m) => m.CustomerClaimsComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CUSTOMER' },
+    data: { role: 'ROLE_CUSTOMER' },
   },
 
   // ── UNDERWRITER ───────────────────────────────────────────────────
@@ -115,7 +124,7 @@ export const routes: Routes = [
         (m) => m.UnderwriterDashboardComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'UNDERWRITER' },
+    data: { role: 'ROLE_UNDERWRITER' },
   },
   {
     path: 'underwriter/subscription/:id',
@@ -124,7 +133,7 @@ export const routes: Routes = [
         (m) => m.SubscriptionReviewComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'UNDERWRITER' },
+    data: { role: 'ROLE_UNDERWRITER' },
   },
 
   // ── CLAIMS OFFICER ────────────────────────────────────────────────
@@ -135,7 +144,7 @@ export const routes: Routes = [
         (m) => m.ClaimsOfficerDashboardComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CLAIMS_OFFICER' },
+    data: { role: 'ROLE_CLAIMS_OFFICER' },
   },
   {
     path: 'claims-detail/:id',
@@ -144,6 +153,6 @@ export const routes: Routes = [
         (m) => m.ClaimsOfficerDetailComponent,
       ),
     canActivate: [roleGuard],
-    data: { role: 'CLAIMS_OFFICER' },
+    data: { role: 'ROLE_CLAIMS_OFFICER' },
   },
 ];

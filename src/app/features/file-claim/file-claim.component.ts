@@ -33,6 +33,7 @@ export class FileClaimComponent implements OnInit {
   readonly isSubmitting = signal(false);
   readonly successMessage = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
+  readonly fileError = signal<string | null>(null);
 
   ngOnInit(): void {
     // 100% Backend Driven: Fetch latest subscription states
@@ -120,13 +121,14 @@ export class FileClaimComponent implements OnInit {
   }
 
   onEvidenceFileSelected(event: any): void {
+    this.fileError.set(null);
     const file = event.target.files[0];
     if (file) {
       if (file.type === 'application/pdf' || file.type.startsWith('image/')) {
         this.selectedFileName.set(file.name);
         this.form.patchValue({ evidenceDocPath: file.name });
       } else {
-        alert('Please upload a PDF or Image file.');
+        this.fileError.set('Please upload a PDF or Image file.');
         this.selectedFileName.set(null);
       }
     }

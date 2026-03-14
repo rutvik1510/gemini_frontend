@@ -1,8 +1,9 @@
-import { Component, inject, signal, afterNextRender } from '@angular/core';
+import { Component, inject, signal, computed, effect, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UnderwriterDashboardService } from './underwriter-dashboard.service';
 import { AuthService } from '../../core/auth.service';
+import { NotificationDropdownComponent } from '../notifications/notification-dropdown.component';
 
 export interface UnderwriterSubscription {
   subscriptionId: number;
@@ -12,12 +13,14 @@ export interface UnderwriterSubscription {
   riskPercentage: number;
   premiumAmount: number;
   status: string;
+  assignedUnderwriterName?: string;
+  safetyComplianceDocPath?: string;
 }
 
 @Component({
   selector: 'app-underwriter-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NotificationDropdownComponent],
   templateUrl: './underwriter-dashboard.component.html',
 })
 export class UnderwriterDashboardComponent {
@@ -25,26 +28,31 @@ export class UnderwriterDashboardComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  readonly currentUsername = computed(() => this.authService.userName());
+
   readonly subscriptions = signal<UnderwriterSubscription[]>([]);
-  readonly isLoading = signal(true);
+  readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
   readonly processingId = signal<number | null>(null);
 
   constructor() {
-    afterNextRender(() => this.loadSubscriptions());
+    afterNextRender(() => {
+      this.loadSubscriptions();
+    });
   }
 
-  private loadSubscriptions(): void {
+  loadSubscriptions(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.service.getAllSubscriptions().subscribe({
+    
+    this.service.getAssignedSubscriptions().subscribe({
       next: (res: any) => {
-        this.subscriptions.set(res.data ?? res);
+        this.subscriptions.set(res.data ?? res ?? []);
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Failed to load subscriptions. Please try again.');
+        this.errorMessage.set('Failed to load subscriptions.');
         this.isLoading.set(false);
       },
     });
@@ -59,7 +67,7 @@ export class UnderwriterDashboardComponent {
         this.loadSubscriptions();
       },
       error: (err: any) => {
-        this.actionError.set(err?.error?.message ?? 'Failed to approve subscription.');
+        this.actionError.set(err?.error?.message ?? 'Failed to approve.');
         this.processingId.set(null);
       },
     });
@@ -74,7 +82,7 @@ export class UnderwriterDashboardComponent {
         this.loadSubscriptions();
       },
       error: (err: any) => {
-        this.actionError.set(err?.error?.message ?? 'Failed to reject subscription.');
+        this.actionError.set(err?.error?.message ?? 'Failed to reject.');
         this.processingId.set(null);
       },
     });
@@ -90,6 +98,16 @@ export class UnderwriterDashboardComponent {
 
   viewDetails(id: number): void {
     this.router.navigate(['/underwriter/subscription', id]);
+  }
+
+  viewDocument(path: string | undefined): void {
+    if (!path) {
+      alert('No document uploaded.');
+      return;
+    }
+    // Handle both absolute and relative paths
+    const url = path.startsWith('http') ? path : `http://localhost:8080${path.startsWith('/') ? '' : '/'}${path}`;
+    window.open(url, '_blank');
   }
 
   logout(): void {

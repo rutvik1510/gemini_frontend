@@ -11,6 +11,10 @@ export class UnderwriterDashboardService {
     return this.http.get(this.base);
   }
 
+  getAssignedSubscriptions(): Observable<any> {
+    return this.http.get(`${this.base}/assigned`);
+  }
+
   approveSubscription(id: number): Observable<any> {
     return this.http.put(`${this.base}/${id}/approve`, {});
   }
