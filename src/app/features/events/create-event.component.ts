@@ -1,6 +1,7 @@
-  import { Component, inject, OnInit, signal } from '@angular/core';
+  import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { EventService } from './event.service';
 import { FileClaimService } from '../file-claim/file-claim.service';
 
@@ -26,47 +27,39 @@ export class CreateEventComponent implements OnInit {
 
   readonly eventForm = this.fb.nonNullable.group({
     eventType: ['', Validators.required],
-
-    // Common fields
     eventName: ['', Validators.required],
     eventDate: ['', [Validators.required, this.pastDateValidator]],
     location: ['', Validators.required],
     budget: ['', [Validators.required, Validators.min(1000)]],
     numberOfAttendees: ['', [Validators.required, Validators.min(1)]],
     durationInDays: [1, [Validators.required, Validators.min(1)]],
-
-    // Objective Safety & Security (Replaces subjective dropdowns)
     hasProfessionalSecurity: [false],
     hasCCTV: [false],
     hasMetalDetectors: [false],
     hasFireNOC: [false],
     hasOnSiteFireSafety: [false],
     safetyComplianceDocPath: [''],
-
-    // Music Concert specific
     isOutdoor: [false],
     alcoholAllowed: [false],
     temporaryStage: [false],
     fireworksUsed: [false],
     celebrityInvolved: [false],
-
-    // Corporate Conference specific
     venueType: ['', Validators.required],
     highValueEquipment: [false],
     temporaryBooths: [false],
     emergencyPreparednessLevel: [''],
   });
 
-  pastDateValidator(control: import('@angular/forms').AbstractControl) {
-    if (!control.value) return null;
-    const selected = new Date(control.value);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selected < today ? { pastDate: true } : null;
-  }
+  // Signal for event type changes
+  readonly selectedType = toSignal(this.eventForm.controls.eventType.valueChanges, { initialValue: '' });
 
-  ngOnInit(): void {
-    this.eventForm.controls.eventType.valueChanges.subscribe((type) => {
+  readonly isMusicConcert = computed(() => this.selectedType() === 'OUTDOOR_MUSIC_CONCERT');
+  readonly isCorporateConference = computed(() => this.selectedType() === 'CORPORATE_TECH_CONFERENCE');
+
+  constructor() {
+    // Reactively update validators based on selectedType signal
+    effect(() => {
+      const type = this.selectedType();
       const venueCtrl = this.eventForm.controls.venueType;
       if (type === 'CORPORATE_TECH_CONFERENCE') {
         venueCtrl.setValidators(Validators.required);
@@ -78,17 +71,15 @@ export class CreateEventComponent implements OnInit {
     });
   }
 
-  get selectedType(): string {
-    return this.eventForm.controls.eventType.value;
+  pastDateValidator(control: import('@angular/forms').AbstractControl) {
+    if (!control.value) return null;
+    const selected = new Date(control.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selected < today ? { pastDate: true } : null;
   }
 
-  get isMusicConcert(): boolean {
-    return this.selectedType === 'OUTDOOR_MUSIC_CONCERT';
-  }
-
-  get isCorporateConference(): boolean {
-    return this.selectedType === 'CORPORATE_TECH_CONFERENCE';
-  }
+  ngOnInit(): void {}
 
   onSafetyFileSelected(event: any): void {
     const file = event.target.files[0];
@@ -126,7 +117,6 @@ export class CreateEventComponent implements OnInit {
   private executeEventCreation(uploadedPath: string): void {
     const formValue = this.eventForm.getRawValue();
     
-    // Use common payload for all factual data
     const commonPayload = {
       eventName: formValue.eventName,
       eventDate: formValue.eventDate,
@@ -142,7 +132,7 @@ export class CreateEventComponent implements OnInit {
       safetyComplianceDocPath: uploadedPath,
     };
 
-    if (this.isMusicConcert) {
+    if (this.isMusicConcert()) {
       const payload = {
         ...commonPayload,
         isOutdoor: formValue.isOutdoor,
@@ -163,7 +153,7 @@ export class CreateEventComponent implements OnInit {
           this.isSubmitting.set(false);
         },
       });
-    } else if (this.isCorporateConference) {
+    } else if (this.isCorporateConference()) {
       const payload = {
         ...commonPayload,
         venueType: formValue.venueType,

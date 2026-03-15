@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, httpResource } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Policy {
@@ -74,6 +74,14 @@ export interface AdminEvent {
 export class AdminDashboardService {
   private readonly http = inject(HttpClient);
   private readonly base = 'http://localhost:8080/admin';
+
+  // Using httpResource for modern Signal-based fetching
+  readonly statsResource = httpResource<ApiResponse<AdminStats>>(() => `${this.base}/dashboard/stats`);
+  readonly claimsResource = httpResource<ApiResponse<any[]>>(() => `${this.base}/claims`);
+  readonly subscriptionsResource = httpResource<ApiResponse<any[]>>(() => `${this.base}/subscriptions`);
+  readonly eventsResource = httpResource<ApiResponse<AdminEvent[]>>(() => `${this.base}/events`);
+  readonly underwritersResource = httpResource<ApiResponse<any[]>>(() => `${this.base}/underwriters`);
+  readonly claimsOfficersResource = httpResource<ApiResponse<any[]>>(() => `${this.base}/claims-officers`);
 
   getPolicies(): Observable<ApiResponse<Policy[]>> {
     return this.http.get<ApiResponse<Policy[]>>(`${this.base}/policies`);
